@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Surface Treatment Plants - Customer & Plant</title>
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Universal Header System -->
+  <script src="/static/common-header.js"></script>
+  <style>
+    /* John Cockerill Brand Guidelines */
+    body {
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .main-container {
+      min-height: 100vh;
+      padding: 40px 20px 20px 20px;
+      position: relative;
+    }
+    
+    /* Content container */
+    .main-content { 
+      max-width: 800px; 
+      margin: 0 auto; 
+    }
+    
+    /* Dynamic theme colors - will be set by JavaScript */
+    :root {
+      --theme-primary: #9de2e7;
+      --theme-primary-hover: #8dd5db;
+      --theme-text: #000000;
+    }
+    
+    /* Selection cards */
+    .selection-card {
+      background: #ffffff;
+      border: 2px solid transparent; /* Add transparent border to maintain consistent positioning */
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+      transition: all 0.3s ease;
+    }
+    
+    .selection-card:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    
+    /* Active state for selected cards */
+    .selection-card.active {
+      border: 2px solid var(--theme-primary);
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+    }
+    
+    .selection-card.active:hover {
+      box-shadow: 0 6px 24px rgba(0,0,0,0.15);
+    }
+    
+    .selection-card.active .card-header {
+      background: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-primary-hover) 100%);
+    }
+    
+    .card-header {
+      background: var(--theme-primary);
+      color: var(--theme-text);
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      border-bottom: none;
+    }
+    
+    .card-header h4 {
+      color: var(--theme-text);
+      font-weight: 700;
+      margin: 0;
+      font-size: 1.4rem;
+      letter-spacing: -0.01em;
+    }
+    
+    .card-header i {
+      font-size: 1.5rem;
+      opacity: 0.8;
+      color: var(--theme-text);
+    }
+    
+    .card-body {
+      padding: 25px;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px; /* Minimum height to ensure consistent card size */
+    }
+    
+    /* Form container that pushes buttons to bottom */
+    #customerSelectionForm,
+    #plantSelectionForm {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    
+    #customerList,
+    #plantList {
+      flex: 1;
+      margin-bottom: 15px;
+    }
+    
+    #addCustomerForm,
+    #addPlantForm,
+    #editPlantForm {
+      margin-top: auto; /* Push form to bottom */
+    }
+    
+    /* Form styling */
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+    
+    .form-control {
+      border-radius: 6px;
+      border: 2px solid #e9ecef;
+      padding: 12px 16px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    
+    .form-control:focus {
+      border-color: var(--theme-primary);
+      box-shadow: 0 0 0 0.2rem rgba(157, 226, 231, 0.25);
+    }
+    
+    /* Button styling */
+    .btn {
+      border-radius: 6px;
+      font-weight: 500;
+      padding: 10px 20px;
+      transition: all 0.2s ease;
+      font-size: 0.95rem;
+      border: none;
+      text-decoration: none;
+    }
+    
+    .btn-theme-primary {
+      background: var(--theme-primary);
+      color: var(--theme-text);
+      border: 1px solid var(--theme-primary);
+    }
+    
+    .btn-theme-primary:hover {
+      background: var(--theme-primary-hover);
+      color: var(--theme-text);
+      border: 1px solid var(--theme-primary-hover);
+      transform: translateY(-1px);
+    }
+    
+    .btn-outline-theme {
+      border: 2px solid var(--theme-primary);
+      color: var(--theme-primary);
+      background: transparent;
+    }
+    
+    .btn-outline-theme:hover {
+      background: var(--theme-primary);
+      color: var(--theme-text);
+      transform: translateY(-1px);
+    }
+    
+    /* Collapsed state styling */
+    .collapsed-selection {
+      background: #f8f9fa;
+      border: 2px solid var(--theme-primary);
+      border-radius: 8px;
+      padding: 15px 20px;
+      margin-bottom: 15px;
+      margin-top: auto; /* Push to bottom of flex container */
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      min-height: 50px;
+    }
+    
+    .collapsed-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: space-between;
+    }
+    
+    .collapsed-icon {
+      color: var(--theme-primary);
+      font-size: 1.2rem;
+    }
+    
+    .collapsed-text {
+      font-weight: 600;
+      color: #000000;
+    }
+    
+    /* Customer details styling */
+    .customer-details {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .customer-name {
+      font-weight: 600;
+      color: #000000;
+      font-size: 1rem;
+      transition: font-size 0.3s ease;
+    }
+    
+    .customer-location {
+      font-size: 0.85rem;
+      color: #6c757d;
+      font-weight: 400;
+      transition: font-size 0.3s ease;
+    }
+    
+    /* Enhanced styling for active selections */
+    .selection-card.active .customer-name {
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    
+    .selection-card.active .customer-location {
+      font-size: 0.95rem;
+      font-weight: 500;
+    }
+    
+    .selection-card.active .collapsed-selection {
+      background: rgba(157, 226, 231, 0.1);
+      border-color: var(--theme-primary);
+      padding: 18px 24px;
+    }
+    
+    /* Icon-only change button */
+    .btn-change-icon {
+      font-size: 0.9rem;
+      padding: 8px;
+      border-radius: 6px;
+      min-width: auto;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    /* Button container for multiple action buttons */
+    .btn-group-actions {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    
+    .selection-label {
+      font-weight: 600;
+      color: #495057;
+      min-width: 80px;
+    }
+    
+    .selection-value {
+      color: #000000;
+      font-weight: 500;
+    }
+    
+    /* List items */
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border: 1px solid #e9ecef;
+      border-radius: 6px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .list-item:hover {
+      border-color: var(--theme-primary);
+      background: rgba(157, 226, 231, 0.1);
+    }
+    
+    .list-item.selected {
+      border-color: var(--theme-primary);
+      background: rgba(157, 226, 231, 0.2);
+    }
+    
+    /* Brand footer */
+    .brand-footer {
+      position: relative;
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      padding-bottom: 30px;
+    }
+    
+    .jc-logo {
+      height: 60px;
+      width: auto;
+    }
+    
+    .brand-text {
+      color: #000000;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    
+    /* Loading indicator */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: #6c757d;
+    }
+    
+    .loading i {
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Error styling */
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      margin-bottom: 15px;
+    }
+    
+    .alert-danger {
+      color: #721c24;
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+    
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      line-height: 1;
+      color: inherit;
+      opacity: 0.5;
+      cursor: pointer;
+      margin-left: 10px;
+    }
+    
+    .btn-close:hover {
+      opacity: 1;
+    }
+    @media (max-width: 768px) {
+      .main-container {
+        padding: 20px 15px 15px 15px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container main-container">
+    <div class="main-content">
+      
+      <!-- Customer Selection -->
+      <div class="selection-card" id="customerCard">
+        <div class="card-header">
+          <i class="bi bi-buildings"></i>
+          <h4 id="customerCardTitle">Select or Create Customer</h4>
+        </div>
+        <div class="card-body">
+          <!-- Collapsed Customer Selection Display -->
+          <div class="collapsed-selection" id="collapsedCustomer" style="display: none;">
+            <div class="collapsed-info">
+              <div class="customer-details">
+                <div class="customer-name" id="collapsedCustomerName">-</div>
+                <div class="customer-location" id="collapsedCustomerLocation">City, Country</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-theme btn-change-icon" onclick="editCustomer(event)" title="Edit customer">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-theme btn-change-icon" onclick="deleteCustomer(event)" title="Delete customer">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-outline-theme btn-change-icon" onclick="changeCustomer(event)" title="Change customer">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Customer Selection Form -->
+          <div id="customerSelectionForm">
+            <div class="mb-3">
+              <label for="customerSearch" class="form-label">Search or Add Customer</label>
+              <div class="d-flex gap-2">
+                <input type="text" class="form-control" id="customerSearch" 
+                       placeholder="Type customer name or '*' for all..." 
+                       autocomplete="off"
+                       onkeypress="handleCustomerKeyPress(event)"
+                       style="flex: 1;">
+                <button class="btn btn-outline-theme" id="addCustomerBtn" onclick="showAddCustomerForm()" disabled title="Add new customer">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div id="customerList">
+              <!-- Empty by default - will show results when searching -->
+            </div>
+            
+            <!-- Add Customer Form (no longer needs addCustomerSection wrapper) -->
+            <div id="addCustomerForm" style="display: none; margin-top: 15px;">
+              <div class="card" style="border: 1px solid #e9ecef;">
+                <div class="card-header" style="background: #f8f9fa; padding: 15px;">
+                  <h6 class="mb-0">Add New Customer</h6>
+                </div>
+                <div class="card-body" style="padding: 15px;">
+                  <div class="mb-3">
+                    <label for="newCustomerName" class="form-label">Customer Name *</label>
+                    <input type="text" class="form-control" id="newCustomerName" 
+                           placeholder="Enter customer name..." autocomplete="off" required>
+                  </div>
+                  <div class="mb-3">
+                    <label for="newCustomerTown" class="form-label">Town/City</label>
+                    <input type="text" class="form-control" id="newCustomerTown" 
+                           placeholder="Enter town or city..." autocomplete="off">
+                  </div>
+                  <div class="mb-3">
+                    <label for="newCustomerCountry" class="form-label">Country</label>
+                    <input type="text" class="form-control" id="newCustomerCountry" 
+                           placeholder="Enter country..." autocomplete="off">
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-theme-primary" onclick="createNewCustomer()">
+                      <i class="bi bi-plus"></i> Create Customer
+                    </button>
+                    <button class="btn btn-outline-secondary" onclick="hideAddCustomerForm()">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Plant Selection -->
+      <div class="selection-card" id="plantCard" style="display: none;">
+        <div class="card-header">
+          <i class="bi bi-building-gear"></i>
+          <h4 id="plantCardTitle">Select or Create Plant</h4>
+        </div>
+        <div class="card-body">
+          <!-- Collapsed Plant Selection Display -->
+          <div class="collapsed-selection" id="collapsedPlant" style="display: none;">
+            <div class="collapsed-info">
+              <div class="customer-details">
+                <div class="customer-name" id="collapsedPlantName">-</div>
+                <div class="customer-location" id="collapsedPlantLocation">Location not specified</div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-outline-theme btn-change-icon" onclick="editPlant(event)" title="Edit plant">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-outline-theme btn-change-icon" onclick="deletePlant(event)" title="Delete plant">
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn btn-outline-theme btn-change-icon" onclick="changePlant(event)" title="Change plant">
+                  <i class="bi bi-arrow-repeat"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Plant Selection Form -->
+          <div id="plantSelectionForm">
+            <div class="mb-3">
+              <label for="plantSearch" class="form-label">Search or Add Plant</label>
+              <div class="d-flex gap-2">
+                <input type="text" class="form-control" id="plantSearch" 
+                       placeholder="Type plant name..." 
+                       autocomplete="off"
+                       style="flex: 1;">
+                <button class="btn btn-outline-theme" id="addPlantBtn" title="Add new plant">
+                  <i class="bi bi-plus"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div id="plantList">
+              <!-- Plant list will be populated by JavaScript -->
+            </div>
+            
+            <!-- Add Plant Form (hidden by default) -->
+            <div id="addPlantForm" style="display: none;" class="mt-3">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-building-gear"></i>
+                  Add New Plant
+                </div>
+                <div class="card-body">
+                  <form id="plantForm">
+                    <div class="mb-3">
+                      <label for="newPlantName" class="form-label">Plant Name *</label>
+                      <input type="text" class="form-control" id="newPlantName" required autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                      <label for="newPlantTown" class="form-label">Town / City</label>
+                      <input type="text" class="form-control" id="newPlantTown" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                      <label for="newPlantCountry" class="form-label">Country</label>
+                      <input type="text" class="form-control" id="newPlantCountry" autocomplete="off">
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-theme-primary">
+                        <i class="bi bi-plus"></i> Create Plant
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="cancelAddPlant">
+                        <i class="bi bi-x"></i> Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Edit Plant Form (hidden by default) -->
+            <div id="editPlantForm" style="display: none;" class="mt-3">
+              <div class="card">
+                <div class="card-header">
+                  <i class="bi bi-pencil"></i>
+                  Edit Plant
+                </div>
+                <div class="card-body">
+                  <form id="plantEditForm">
+                    <input type="hidden" id="editPlantId">
+                    <div class="mb-3">
+                      <label for="editPlantName" class="form-label">Plant Name *</label>
+                      <input type="text" class="form-control" id="editPlantName" required autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                      <label for="editPlantTown" class="form-label">Town / City</label>
+                      <input type="text" class="form-control" id="editPlantTown" autocomplete="off">
+                    </div>
+                    <div class="mb-3">
+                      <label for="editPlantCountry" class="form-label">Country</label>
+                      <input type="text" class="form-control" id="editPlantCountry" autocomplete="off">
+                    </div>
+                    <div class="d-flex gap-2">
+                      <button type="submit" class="btn btn-theme-primary">
+                        <i class="bi bi-check"></i> Update Plant
+                      </button>
+                      <button type="button" class="btn btn-outline-secondary" id="cancelEditPlant">
+                        <i class="bi bi-x"></i> Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- John Cockerill branding -->
+    <div class="brand-footer">
+      <img src="https://res.cloudinary.com/brandpad/image/upload/c_scale,dpr_auto,f_auto,w_512/v1551357514/2215/john_cockerill_logo_black_screen" 
+           class="jc-logo" 
+           alt="John Cockerill">
+      <span class="brand-text">Surface Treatment</span>
+    </div>
+  </div>
+
+  <script>
+    // Global state
+    let selectedCustomer = null;
+    let selectedPlant = null;
+    let currentTheme = 'engineering'; // default
+    let returnUrl = 'engineering.html'; // default
+    let allCustomers = [];
+    let allPlants = [];
+    
+    // API base URL
+    const API_BASE = '';  // No API prefix needed
+    
+    // Theme configurations
+    const themes = {
+      engineering: {
+        primary: '#9de2e7',
+        primaryHover: '#8dd5db',
+        text: '#000000'
+      },
+      sales: {
+        primary: '#113a4c',
+        primaryHover: '#000000',
+        text: '#ffffff'
+      },
+      simulation: {
+        primary: '#e5dddf',
+        primaryHover: '#d9d0d3',
+        text: '#000000'
+      }
+    };
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('DOM loaded - initializing page');
+      
+      // Get theme and return URL from query parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      currentTheme = urlParams.get('theme') || 'engineering';
+      returnUrl = urlParams.get('return') || 'engineering.html';
+      
+      // Apply theme
+      applyTheme(currentTheme);
+      
+      // Create header with theme
+      createHeader({ theme: currentTheme });
+      
+      // Load existing selection if any
+      loadExistingSelection();
+      
+      // Listen for beforeunload to handle back navigation
+      window.addEventListener('beforeunload', function() {
+        // If user is changing selection and no new selection was made, clear the storage
+        if (sessionStorage.getItem('customerPlantChanging') === 'true') {
+          if (!selectedCustomer && !selectedPlant) {
+            sessionStorage.removeItem('customerPlantSelection');
+          }
+          sessionStorage.removeItem('customerPlantChanging');
+        }
+      });
+      
+      // Don't load all customers automatically - wait for search
+      allCustomers = []; // Initialize empty array
+      
+      // Set up search with debouncing
+      let searchTimeout;
+      document.getElementById('customerSearch').addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(searchCustomers, 300);
+      });
+      
+      // Plus button click handler
+      document.getElementById('addCustomerBtn').addEventListener('click', function() {
+        if (!this.disabled) {
+          showAddCustomerForm();
+        }
+      });
+      
+      // Plant plus button click handler
+      document.getElementById('addPlantBtn').addEventListener('click', function() {
+        if (!this.disabled) {
+          showAddPlantForm();
+        }
+      });
+      
+      // Plant search with debouncing
+      let plantSearchTimeout;
+      document.getElementById('plantSearch').addEventListener('input', function() {
+        clearTimeout(plantSearchTimeout);
+        plantSearchTimeout = setTimeout(searchPlants, 300);
+      });
+      
+      // Form submission handlers
+      document.getElementById('plantForm').addEventListener('submit', handleAddPlant);
+      document.getElementById('plantEditForm').addEventListener('submit', handleEditPlant);
+      
+      // Plant cancel buttons will be handled in show functions
+      console.log('Event listeners initialized - plant cancel buttons will be added dynamically');
+    });
+    
+    document.addEventListener('DOMContentLoaded', () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const theme = urlParams.get('theme') || 'default';
+
+      // Apply theme-specific styles or logic
+      if (theme === 'sales') {
+        document.body.style.backgroundColor = '#f8f9fa';
+        document.title = 'Customer & Plant Selection - Sales Context';
+      } else {
+        document.body.style.backgroundColor = '#ffffff';
+        document.title = 'Customer & Plant Selection';
+      }
+
+      // Load existing selection
+      const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
+      if (selection) {
+        console.log('Loaded active selection:', selection);
+        // Display active selection on the page
+        const selectionDiv = document.getElementById('activeSelection');
+        if (selectionDiv) {
+          selectionDiv.innerHTML = `
+            <div>
+              <strong>Active Selection:</strong>
+              <p>Customer: ${selection.customer.name}</p>
+              <p>Plant: ${selection.plant.name}</p>
+            </div>
+          `;
+        }
+      } else {
+        console.log('No active selection found.');
+      }
+    });
+    
+    function applyTheme(theme) {
+      const themeConfig = themes[theme];
+      if (themeConfig) {
+        document.documentElement.style.setProperty('--theme-primary', themeConfig.primary);
+        document.documentElement.style.setProperty('--theme-primary-hover', themeConfig.primaryHover);
+        document.documentElement.style.setProperty('--theme-text', themeConfig.text);
+      }
+    }
+    
+    function loadExistingSelection() {
+      // Load from sessionStorage if exists
+      const existingSelection = sessionStorage.getItem('customerPlantSelection');
+      if (existingSelection) {
+        const selection = JSON.parse(existingSelection);
+        
+        // Set the selected customer and plant
+        selectedCustomer = selection.customer;
+        selectedPlant = selection.plant;
+        
+        // Update collapsed displays
+        if (selectedCustomer) {
+          document.getElementById('collapsedCustomerName').textContent = selectedCustomer.name;
+          // Set location using actual database fields (town, country)
+          document.getElementById('collapsedCustomerLocation').textContent = selectedCustomer.town ? `${selectedCustomer.town}, ${selectedCustomer.country || ''}`.trim().replace(/,$/, '') : 'Location not specified';
+          document.getElementById('collapsedCustomer').style.display = 'block';
+          document.getElementById('customerSelectionForm').style.display = 'none';
+          
+          // Update card title to show selection is made
+          document.getElementById('customerCardTitle').textContent = 'Selected Customer';
+          
+          // Add active class to customer card
+          document.getElementById('customerCard').classList.add('active');
+          
+          // Show plant selection card
+          document.getElementById('plantCard').style.display = 'block';
+          
+          // Enable plus button for plants (plants can be added even if others exist)
+          const plantAddBtn = document.getElementById('addPlantBtn');
+          if (plantAddBtn) {
+            plantAddBtn.disabled = false;
+            plantAddBtn.title = 'Add new plant';
+          }
+        }
+        
+        if (selectedPlant) {
+          document.getElementById('collapsedPlantName').textContent = selectedPlant.name;
+          updatePlantDisplay(); // Use the function to properly set location
+          document.getElementById('collapsedPlant').style.display = 'block';
+          document.getElementById('plantSelectionForm').style.display = 'none';
+          
+          // Update card title to show selection is made
+          document.getElementById('plantCardTitle').textContent = 'Selected Plant';
+          
+          // Add active class to plant card
+          document.getElementById('plantCard').classList.add('active');
+        }
+        
+        // Update current selection display - removed as current selection card is no longer shown
+        // document.getElementById('selectedCustomerName').textContent = selectedCustomer ? selectedCustomer.name : '-';
+        // document.getElementById('selectedPlantName').textContent = selectedPlant ? selectedPlant.name : '-';
+        // document.getElementById('currentSelection').style.display = 'block';
+      }
+    }
+    
+    async function loadCustomers() {
+      try {
+        // Show loading indicator
+        document.getElementById('customerList').innerHTML = `
+          <div class="loading">
+            <i class="bi bi-arrow-clockwise"></i>
+            Loading customers...
+          </div>
+        `;
+        
+        const response = await fetch(`${API_BASE}/customers?limit=1000`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        allCustomers = await response.json();
+        displayCustomers(allCustomers);
+      } catch (error) {
+        console.error('Error loading customers:', error);
+        document.getElementById('customerList').innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+            Failed to load customers. Please check your connection and try again.
+            <button class="btn btn-outline-theme btn-sm ms-2" onclick="loadCustomers()">
+              <i class="bi bi-arrow-clockwise"></i> Retry
+            </button>
+          </div>
+        `;
+        showError('Failed to load customers. Please try again.');
+      }
+    }
+    
+    async function loadPlantsForCustomer(customerId) {
+      try {
+        // Show loading indicator
+        document.getElementById('plantList').innerHTML = `
+          <div class="loading">
+            <i class="bi bi-arrow-clockwise"></i>
+            Loading plants...
+          </div>
+        `;
+        
+        const response = await fetch(`${API_BASE}/customers/${customerId}/plants`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const plants = await response.json();
+        allPlants = plants;
+        displayPlants(plants);
+      } catch (error) {
+        console.error('Error loading plants:', error);
+        document.getElementById('plantList').innerHTML = `
+          <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
+            Failed to load plants. Please check your connection and try again.
+            <button class="btn btn-outline-theme btn-sm ms-2" onclick="loadPlantsForCustomer(${customerId})">
+              <i class="bi bi-arrow-clockwise"></i> Retry
+            </button>
+          </div>
+        `;
+        showError('Failed to load plants. Please try again.');
+      }
+    }
+    
+    function showError(message) {
+      // Create error toast or notification
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'alert alert-danger';
+      errorDiv.style.position = 'fixed';
+      errorDiv.style.top = '20px';
+      errorDiv.style.right = '20px';
+      errorDiv.style.zIndex = '9999';
+      errorDiv.innerHTML = `
+        <i class="bi bi-exclamation-triangle"></i>
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+      `;
+      document.body.appendChild(errorDiv);
+      
+      // Auto remove after 5 seconds
+      setTimeout(() => {
+        if (errorDiv.parentElement) {
+          errorDiv.remove();
+        }
+      }, 5000);
+    }
+    
+    function showSuccess(message) {
+      // Create success toast or notification
+      const successDiv = document.createElement('div');
+      successDiv.className = 'alert alert-success';
+      successDiv.style.position = 'fixed';
+      successDiv.style.top = '20px';
+      successDiv.style.right = '20px';
+      successDiv.style.zIndex = '9999';
+      successDiv.style.backgroundColor = '#d4edda';
+      successDiv.style.borderColor = '#c3e6cb';
+      successDiv.style.color = '#155724';
+      successDiv.innerHTML = `
+        <i class="bi bi-check-circle"></i>
+        ${message}
+        <button type="button" class="btn-close" onclick="this.parentElement.remove()"></button>
+      `;
+      document.body.appendChild(successDiv);
+      
+      // Auto remove after 3 seconds
+      setTimeout(() => {
+        if (successDiv.parentElement) {
+          successDiv.remove();
+        }
+      }, 3000);
+    }
+    
+    async function searchCustomers() {
+      const searchTerm = document.getElementById('customerSearch').value.trim();
+      const addBtn = document.getElementById('addCustomerBtn');
+      // Jos kenttä tyhjä, tyhjennä lista ja disabloi lisää-nappi
+      if (!searchTerm) {
+        document.getElementById('customerList').innerHTML = '';
+        addBtn.disabled = true;
+        addBtn.title = 'Type customer name to add new';
+        return;
+      }
+      // Jos '*', haetaan kaikki asiakkaat backendistä
+      if (searchTerm === '*') {
+        try {
+          document.getElementById('customerList').innerHTML = `
+            <div class="loading">
+              <i class="bi bi-arrow-clockwise"></i>
+              Loading all customers...
+            </div>
+          `;
+          addBtn.disabled = true;
+          addBtn.title = 'Loading...';
+          const response = await fetch(`${API_BASE}/customers?limit=1000`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          allCustomers = await response.json();
+          displayCustomers(allCustomers, '*');
+          addBtn.disabled = true;
+          addBtn.title = 'Select from list or clear search to add new';
+        } catch (error) {
+          console.error('Error loading all customers:', error);
+          document.getElementById('customerList').innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+              Failed to load customers. Please try again.
+            </div>
+          `;
+          addBtn.disabled = true;
+          addBtn.title = 'Loading failed';
+          showError('Failed to load customers. Please try again.');
+        }
+        return;
+      }
+      // Muulloin suodatetaan allCustomers-listaa frontendissä
+      // Jos allCustomers ei ole ladattu, lataa se ensin (vain kerran)
+      if (allCustomers.length === 0) {
+        try {
+          document.getElementById('customerList').innerHTML = `
+            <div class="loading">
+              <i class="bi bi-arrow-clockwise"></i>
+              Loading customers...
+            </div>
+          `;
+          addBtn.disabled = true;
+          addBtn.title = 'Loading...';
+          const response = await fetch(`${API_BASE}/customers?limit=1000`);
+          if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+          allCustomers = await response.json();
+        } catch (error) {
+          console.error('Error loading customers:', error);
+          document.getElementById('customerList').innerHTML = `
+            <div class="alert alert-danger">
+              <i class="bi bi-exclamation-triangle"></i>
+              Failed to load customers. Please try again.
+            </div>
+          `;
+          addBtn.disabled = true;
+          addBtn.title = 'Loading failed';
+          showError('Failed to load customers. Please try again.');
+          return;
+        }
+      }
+      // Suodata asiakkaat hakukentän mukaan
+      const filtered = allCustomers.filter(c => c.name && c.name.toLowerCase().includes(searchTerm.toLowerCase()));
+      displayCustomers(filtered, searchTerm);
+      // Lisää-nappi: jos ei yhtään osumaa, mahdollista lisätä uusi
+      if (filtered.length === 0) {
+        addBtn.disabled = false;
+        addBtn.title = `Add "${searchTerm}" as new customer`;
+        document.getElementById('newCustomerName').value = searchTerm;
+      } else {
+        addBtn.disabled = true;
+        addBtn.title = 'Customer found - select from list';
+        hideAddCustomerForm();
+      }
+    }
+    
+    function displayCustomers(customerList, searchTerm) {
+      const listContainer = document.getElementById('customerList');
+      listContainer.innerHTML = '';
+      if (customerList.length === 0) {
+        listContainer.innerHTML = '<p class="text-muted">No customers found.</p>';
+        return;
+      }
+      customerList.forEach(customer => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.onclick = () => selectCustomer(customer);
+        item.innerHTML = `
+          <span>${customer.name}</span>
+          <i class="bi bi-chevron-right"></i>
+        `;
+        listContainer.appendChild(item);
+      });
+    }
+    
+    async function handleCustomerKeyPress(event) {
+      if (event.key === 'Enter') {
+        const searchTerm = event.target.value.trim();
+        if (searchTerm) {
+          // First check if there are any displayed customers
+          const customerItems = document.querySelectorAll('#customerList .list-item');
+          
+          if (customerItems.length === 1) {
+            // If only one customer is shown, select it
+            customerItems[0].click();
+          } else if (customerItems.length === 0) {
+            // No customers found, show add customer form
+            showAddCustomerForm();
+          }
+          // If multiple customers, let user click to choose
+        }
+      }
+    }
+    
+    function showAddCustomerForm() {
+      // Show the form directly (no addCustomerSection wrapper anymore)
+      document.getElementById('addCustomerForm').style.display = 'block';
+      
+      // Pre-fill name if there's a search term
+      const searchTerm = document.getElementById('customerSearch').value.trim();
+      if (searchTerm) {
+        document.getElementById('newCustomerName').value = searchTerm;
+      }
+      
+      // Focus on name field
+      document.getElementById('newCustomerName').focus();
+    }
+    
+    function hideAddCustomerForm() {
+      document.getElementById('addCustomerForm').style.display = 'none';
+      
+      // If we have a selected customer, return to collapsed view
+      if (selectedCustomer) {
+        document.getElementById('customerSelectionForm').style.display = 'none';
+        document.getElementById('collapsedCustomer').style.display = 'block';
+      }
+      
+      // Clear form
+      document.getElementById('newCustomerName').value = '';
+      document.getElementById('newCustomerTown').value = '';
+      document.getElementById('newCustomerCountry').value = '';
+      
+      // Reset form back to create mode (in case it was in edit mode)
+      const createButton = document.querySelector('#addCustomerForm .btn-theme-primary');
+      if (createButton) {
+        createButton.innerHTML = '<i class="bi bi-plus"></i> Create Customer';
+        createButton.onclick = () => createNewCustomer();
+      }
+      const titleElement = document.querySelector('#addCustomerForm .card-header h6');
+      if (titleElement) {
+        titleElement.textContent = 'Add New Customer';
+      }
+    }
+    
+    async function createNewCustomer() {
+      const name = document.getElementById('newCustomerName').value.trim();
+      const town = document.getElementById('newCustomerTown').value.trim();
+      const country = document.getElementById('newCustomerCountry').value.trim();
+      
+      if (!name) {
+        showError('Please enter a customer name.');
+        return;
+      }
+      
+      try {
+        const customerData = { name };
+        if (town) customerData.town = town;
+        if (country) customerData.country = country;
+        
+        const response = await fetch(`${API_BASE}/customers`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const newCustomer = await response.json();
+        allCustomers.push(newCustomer);
+        hideAddCustomerForm();
+        selectCustomer(newCustomer);
+        
+      } catch (error) {
+        console.error('Error creating customer:', error);
+        showError('Failed to create customer. Please try again.');
+      }
+    }
+    
+    async function addNewCustomer() {
+      // This is now just a wrapper that shows the form
+      showAddCustomerForm();
+    }
+    
+    async function selectCustomer(customer) {
+  selectedCustomer = customer;
+  selectedPlant = null; // Reset plant selection
+
+  // Update collapsed customer display
+  document.getElementById('collapsedCustomerName').textContent = customer.name;
+  // Set location using actual database fields (town, country)
+  document.getElementById('collapsedCustomerLocation').textContent = customer.town ? `${customer.town}, ${customer.country || ''}`.trim().replace(/,$/, '') : 'Location not specified';
+  document.getElementById('collapsedCustomer').style.display = 'block';
+  document.getElementById('customerSelectionForm').style.display = 'none';
+
+  // Update card title to show selection is made
+  document.getElementById('customerCardTitle').textContent = 'Selected Customer';
+
+  // Add active class to customer card
+  document.getElementById('customerCard').classList.add('active');
+
+  // Hide/show delete button based on can_delete
+  try {
+    const deleteBtn = document.querySelector('#collapsedCustomer button[onclick*="deleteCustomer"]');
+    if (deleteBtn) {
+      // Default: show
+      deleteBtn.style.display = '';
+      const resp = await fetch(`${API_BASE}/customers/${customer.id}/can_delete`);
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data && data.can_delete === false) {
+          deleteBtn.style.display = 'none';
+        } else {
+          deleteBtn.style.display = '';
+        }
+      } else {
+        // If error, show button (fail open)
+        deleteBtn.style.display = '';
+      }
+    }
+  } catch (e) {
+    // On error, show button
+    const deleteBtn = document.querySelector('#collapsedCustomer button[onclick*="deleteCustomer"]');
+    if (deleteBtn) deleteBtn.style.display = '';
+  }
+
+  // Reset plant selection if any
+  document.getElementById('collapsedPlant').style.display = 'none';
+  document.getElementById('plantSelectionForm').style.display = 'block';
+  document.getElementById('plantCard').classList.remove('active');
+
+  // Show plant selection
+  document.getElementById('plantCard').style.display = 'block';
+  document.getElementById('plantSearch').value = '';
+
+  // Enable plus button for plants (plants can be added even if others exist)
+  const plantAddBtn = document.getElementById('addPlantBtn');
+  if (plantAddBtn) {
+    plantAddBtn.disabled = false;
+    plantAddBtn.title = 'Add new plant';
+  }
+
+  // Load plants for this customer from database
+  await loadPlantsForCustomer(customer.id);
+    }
+    
+    function searchPlants() {
+      if (!selectedCustomer) return;
+      
+      const searchTerm = document.getElementById('plantSearch').value.trim();
+      const addBtn = document.getElementById('addPlantBtn');
+      
+      // If search is empty, clear the list but keep add button enabled
+      if (!searchTerm) {
+        document.getElementById('plantList').innerHTML = '';
+        addBtn.disabled = false;
+        addBtn.title = 'Add new plant';
+        return;
+      }
+      
+      // Filter plants by search term
+      const filteredPlants = allPlants.filter(plant => 
+        plant.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      
+      displayPlants(filteredPlants);
+      
+      // Plus button is always enabled for plants (multiple plants allowed per customer)
+      addBtn.disabled = false;
+      if (filteredPlants.length === 0) {
+        addBtn.title = `Add "${searchTerm}" as new plant`;
+      } else {
+        addBtn.title = `Add "${searchTerm}" as new plant`;
+      }
+      
+      // Pre-fill the form with the search term
+      document.getElementById('newPlantName').value = searchTerm;
+    }
+    
+    function displayPlants(plantList) {
+      const listContainer = document.getElementById('plantList');
+      listContainer.innerHTML = '';
+      
+      if (plantList.length === 0) {
+        listContainer.innerHTML = '<p class="text-muted">No plants found for this customer.</p>';
+        return;
+      }
+      
+      plantList.forEach(plant => {
+        const item = document.createElement('div');
+        item.className = 'list-item';
+        item.onclick = () => selectPlant(plant);
+        
+        item.innerHTML = `
+          <span>${plant.name}</span>
+          <i class="bi bi-chevron-right"></i>
+        `;
+        
+        listContainer.appendChild(item);
+      });
+    }
+    
+    function handlePlantKeyPress(event) {
+      if (event.key === 'Enter') {
+        const searchTerm = event.target.value.trim();
+        if (searchTerm) {
+          const existingPlant = allPlants.find(p => 
+            p.name.toLowerCase() === searchTerm.toLowerCase()
+          );
+          
+          if (existingPlant) {
+            selectPlant(existingPlant);
+          } else {
+            addNewPlant();
+          }
+        }
+      }
+    }
+    
+    async function addNewPlant() {
+      if (!selectedCustomer) return;
+      
+      const searchTerm = document.getElementById('plantSearch').value.trim();
+      if (!searchTerm) {
+        showError('Please enter a plant name.');
+        return;
+      }
+      
+      try {
+        // Haetaan myös town ja country kentät lomakkeelta
+        const town = document.getElementById('newPlantTown') ? document.getElementById('newPlantTown').value.trim() : '';
+        const country = document.getElementById('newPlantCountry') ? document.getElementById('newPlantCountry').value.trim() : '';
+        const payload = {
+          name: searchTerm,
+          customer_id: selectedCustomer.id
+        };
+        if (town) payload.town = town;
+        if (country) payload.country = country;
+        const response = await fetch(`${API_BASE}/plants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const newPlant = await response.json();
+        allPlants.push(newPlant);
+        selectPlant(newPlant);
+        
+      } catch (error) {
+        console.error('Error creating plant:', error);
+        showError('Failed to create plant. Please try again.');
+      }
+    }
+    
+    function selectPlant(plant) {
+      selectedPlant = plant;
+      
+      // Update card title
+      document.getElementById('plantCardTitle').textContent = 'Selected Plant';
+      
+      // Update collapsed plant display with location information
+      updatePlantDisplay();
+      document.getElementById('collapsedPlant').style.display = 'block';
+      document.getElementById('plantSelectionForm').style.display = 'none';
+      
+      // Add active class to plant card
+      document.getElementById('plantCard').classList.add('active');
+      
+      // Update current selection display - removed as current selection card is no longer shown
+      // document.getElementById('selectedPlantName').textContent = plant.name;
+      
+      // Store selection in sessionStorage for later use
+      if (selectedCustomer && selectedPlant) {
+        const selection = {
+          customer: selectedCustomer,
+          plant: selectedPlant,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Store in sessionStorage and clear changing flag
+        sessionStorage.setItem('customerPlantSelection', JSON.stringify(selection));
+        sessionStorage.removeItem('customerPlantChanging');
+      }
+      
+      // Highlight selected plant (for any remaining visible list items)
+      document.querySelectorAll('#plantList .list-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Find and highlight the clicked item
+      const clickedItem = event.target.closest('.list-item');
+      if (clickedItem) {
+        clickedItem.classList.add('selected');
+      }
+
+      // --- PLANT REVISION SELECTION UI ---
+      showPlantRevisionSelection(plant);
+    }
+// --- Plant Revision Selection UI ---
+async function showPlantRevisionSelection(plant) {
+  // Remove any previous revision UI
+  let old = document.getElementById('plantRevisionSection');
+  if (old) old.remove();
+
+  // Create section
+  const section = document.createElement('div');
+  section.id = 'plantRevisionSection';
+  section.className = 'mt-3';
+
+  // Header
+  section.innerHTML = `
+    <div class="d-flex align-items-center mb-2" style="gap: 8px;">
+      <i class="bi bi-layers-half" style="font-size: 1.2em;"></i>
+      <span style="font-weight: 500;">Valitse laitoksen revisio</span>
+      <button class="btn btn-outline-theme btn-sm ms-auto" id="refreshRevisionsBtn" title="Päivitä revisiot">
+        <i class="bi bi-arrow-clockwise"></i>
+      </button>
+      <button class="btn btn-outline-theme btn-sm" id="addRevisionBtn" title="Lisää uusi revisio">
+        <i class="bi bi-plus"></i>
+      </button>
+    </div>
+    <div id="revisionList" class="list-group mb-2"></div>
+    <div id="revisionActions" class="d-flex gap-2"></div>
+  `;
+
+  // Insert after collapsedPlant
+  const collapsedPlant = document.getElementById('collapsedPlant');
+  if (collapsedPlant && collapsedPlant.parentNode) {
+    collapsedPlant.parentNode.insertBefore(section, collapsedPlant.nextSibling);
+  }
+
+  // Load and display revisions
+  await loadAndDisplayPlantRevisions(plant.id);
+
+  // Button handlers
+  document.getElementById('refreshRevisionsBtn').onclick = () => loadAndDisplayPlantRevisions(plant.id);
+  document.getElementById('addRevisionBtn').onclick = () => addNewPlantRevision(plant.id);
+}
+
+async function loadAndDisplayPlantRevisions(plantId) {
+  const list = document.getElementById('revisionList');
+  if (!list) return;
+  list.innerHTML = '<div class="text-muted">Loading revisions...</div>';
+  try {
+    const resp = await fetch(`${API_BASE}/plants/${plantId}/revisions`);
+    if (!resp.ok) throw new Error('Failed to load revisions');
+    let revisions = await resp.json();
+    // Only show DRAFT revisions
+    revisions = revisions.filter(r => r.status === 'DRAFT');
+    if (revisions.length === 0) {
+      list.innerHTML = '<div class="text-muted">Ei keskeneräisiä revisioita.</div>';
+      return;
+    }
+    list.innerHTML = '';
+    revisions.forEach(rev => {
+      const item = document.createElement('button');
+      item.className = 'list-group-item list-group-item-action d-flex align-items-center gap-2';
+      item.type = 'button';
+      item.innerHTML = `
+        <i class="bi bi-file-earmark-text"></i>
+        <span style="flex:1;">Revisio ${rev.revision_number || ''}</span>
+        <span class="badge bg-secondary">${rev.status}</span>
+      `;
+      item.onclick = () => selectPlantRevision(rev);
+      list.appendChild(item);
+    });
+  } catch (e) {
+    list.innerHTML = '<div class="alert alert-danger">Failed to load revisions.</div>';
+  }
+}
+
+function selectPlantRevision(revision) {
+  // Store revision selection in sessionStorage
+  const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || '{}');
+  selection.revision = revision;
+  sessionStorage.setItem('customerPlantSelection', JSON.stringify(selection));
+  // Minimal feedback
+  showSuccess(`Revision ${revision.revision_number || ''} selected`);
+  // Optionally, update UI to highlight selected revision
+  document.querySelectorAll('#revisionList .list-group-item').forEach(btn => btn.classList.remove('active'));
+  // Find and highlight
+  const list = document.getElementById('revisionList');
+  if (list) {
+    const idx = Array.from(list.children).findIndex(btn => btn.textContent.includes(revision.revision_number));
+    if (idx >= 0) list.children[idx].classList.add('active');
+  }
+}
+
+async function addNewPlantRevision(plantId) {
+  // Minimal: create new revision via API, then reload list
+  try {
+    const resp = await fetch(`${API_BASE}/plants/${plantId}/revisions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    });
+    if (!resp.ok) throw new Error('Failed to add revision');
+    showSuccess('New revision created');
+    await loadAndDisplayPlantRevisions(plantId);
+  } catch (e) {
+    showError('Failed to add revision');
+  }
+}
+    
+    function changeCustomer(event) {
+      if (event) event.stopPropagation();
+      
+      // Mark that user is actively changing selection
+      sessionStorage.setItem('customerPlantChanging', 'true');
+      
+      // Show customer selection form again
+      document.getElementById('collapsedCustomer').style.display = 'none';
+      document.getElementById('customerSelectionForm').style.display = 'block';
+      
+      // Remove active class from customer card
+      document.getElementById('customerCard').classList.remove('active');
+      
+      // Reset card title back to selection mode
+      document.getElementById('customerCardTitle').textContent = 'Select or Create Customer';
+      
+      // Hide plant selection until customer is re-selected
+      document.getElementById('plantCard').style.display = 'none';
+      document.getElementById('plantCard').classList.remove('active');
+      
+      // Reset selections
+      selectedCustomer = null;
+      selectedPlant = null;
+      
+      // Clear search field and focus it
+      document.getElementById('customerSearch').value = '';
+      document.getElementById('customerList').innerHTML = '';
+      hideAddCustomerForm(); // Hide add customer form
+      document.getElementById('customerSearch').focus();
+    }
+    
+    function editCustomer(event) {
+      if (event) event.stopPropagation();
+      if (!selectedCustomer) return;
+      
+      // Show the customer selection form first so the add form will be visible
+      document.getElementById('collapsedCustomer').style.display = 'none';
+      document.getElementById('customerSelectionForm').style.display = 'block';
+      
+      // Show the add customer form with current customer data pre-filled
+      showAddCustomerForm();
+      
+      // Pre-fill the form with current customer data
+      document.getElementById('newCustomerName').value = selectedCustomer.name || '';
+      document.getElementById('newCustomerTown').value = selectedCustomer.town || '';
+      document.getElementById('newCustomerCountry').value = selectedCustomer.country || '';
+      
+      // Change the button text and functionality for editing
+      const createButton = document.querySelector('#addCustomerForm .btn-theme-primary');
+      createButton.innerHTML = '<i class="bi bi-check"></i> Update Customer';
+      createButton.onclick = () => updateCustomer();
+      
+      // Change form title
+      document.querySelector('#addCustomerForm .card-header h6').textContent = 'Edit Customer';
+    }
+    
+    async function updateCustomer() {
+      if (!selectedCustomer) return;
+      
+      const name = document.getElementById('newCustomerName').value.trim();
+      const town = document.getElementById('newCustomerTown').value.trim();
+      const country = document.getElementById('newCustomerCountry').value.trim();
+      
+      if (!name) {
+        showError('Please enter a customer name.');
+        return;
+      }
+      
+      try {
+        const customerData = { name };
+        if (town) customerData.town = town;
+        if (country) customerData.country = country;
+        
+        const response = await fetch(`${API_BASE}/customers/${selectedCustomer.id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(customerData),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const updatedCustomer = await response.json();
+        selectedCustomer = updatedCustomer;
+        
+        // Update display
+        document.getElementById('collapsedCustomerName').textContent = updatedCustomer.name;
+        document.getElementById('collapsedCustomerLocation').textContent = updatedCustomer.town ? `${updatedCustomer.town}, ${updatedCustomer.country || ''}`.trim().replace(/,$/, '') : 'Location not specified';
+        
+        hideAddCustomerForm();
+        
+        // Return to collapsed view
+        document.getElementById('customerSelectionForm').style.display = 'none';
+        document.getElementById('collapsedCustomer').style.display = 'block';
+        
+        // Reset form back to create mode
+        const createButton = document.querySelector('#addCustomerForm .btn-theme-primary');
+        createButton.innerHTML = '<i class="bi bi-plus"></i> Create Customer';
+        createButton.onclick = () => createNewCustomer();
+        document.querySelector('#addCustomerForm .card-header h6').textContent = 'Add New Customer';
+        
+      } catch (error) {
+        console.error('Error updating customer:', error);
+        showError('Failed to update customer. Please try again.');
+      }
+    }
+    
+    async function deleteCustomer(event) {
+      if (event) event.stopPropagation();
+      if (!selectedCustomer) return;
+      
+      if (!confirm(`Are you sure you want to delete customer "${selectedCustomer.name}"? This action cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/customers/${selectedCustomer.id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Reset to customer selection mode
+        changeCustomer();
+        
+      } catch (error) {
+        console.error('Error deleting customer:', error);
+        showError('Failed to delete customer. Please try again.');
+      }
+    }
+    
+    function changePlant(event) {
+      if (event) event.stopPropagation();
+      
+      // Mark that user is actively changing selection
+      sessionStorage.setItem('customerPlantChanging', 'true');
+      
+      // Reset card title
+      document.getElementById('plantCardTitle').textContent = 'Select or Create Plant';
+      
+      // Remove active class from plant card
+      document.getElementById('plantCard').classList.remove('active');
+      
+      // Show plant selection form again
+      document.getElementById('collapsedPlant').style.display = 'none';
+      document.getElementById('plantSelectionForm').style.display = 'block';
+      
+      // Reset plant selection
+      selectedPlant = null;
+      
+      // Update current selection display - removed as current selection card is no longer shown
+      // document.getElementById('selectedPlantName').textContent = '-';
+      
+      // Clear search field and focus it
+      document.getElementById('plantSearch').value = '';
+      document.getElementById('plantSearch').focus();
+      
+      // Reload plants for the selected customer
+      if (selectedCustomer) {
+        loadPlantsForCustomer(selectedCustomer.id);
+      }
+    }
+    
+    function editPlant(event) {
+      console.log('editPlant function called', event);
+      if (event) {
+        console.log('Stopping event propagation');
+        event.stopPropagation();
+        event.preventDefault();
+      }
+      if (!selectedPlant) {
+        console.log('No selected plant, returning');
+        return;
+      }
+      
+      // Show the plant selection form first so the edit form will be visible
+      document.getElementById('collapsedPlant').style.display = 'none';
+      document.getElementById('plantSelectionForm').style.display = 'block';
+      
+      // Show the edit plant form with current plant data pre-filled
+      showEditPlantForm(selectedPlant);
+    }
+    
+    async function deletePlant(event) {
+      if (event) event.stopPropagation();
+      if (!selectedPlant) return;
+      
+      if (!confirm(`Are you sure you want to delete plant "${selectedPlant.name}"? This action cannot be undone.`)) {
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/plants/${selectedPlant.id}`, {
+          method: 'DELETE'
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        // Reset to plant selection mode
+        changePlant();
+        
+      } catch (error) {
+        console.error('Error deleting plant:', error);
+        showError('Failed to delete plant. Please try again.');
+      }
+    }
+    
+    function showAddPlantForm() {
+      console.log('showAddPlantForm called');
+      // Show the form directly
+      document.getElementById('addPlantForm').style.display = 'block';
+      
+      // Make sure cancel button has event listener
+      const cancelBtn = document.getElementById('cancelAddPlant');
+      if (cancelBtn && !cancelBtn.hasEventListener) {
+        console.log('Adding cancel event listener to plant form');
+        cancelBtn.addEventListener('click', function() {
+          console.log('Cancel plant button clicked!');
+          hideAddPlantForm();
+        });
+        cancelBtn.hasEventListener = true;
+      }
+      
+      // Pre-fill name if there's a search term
+      const searchTerm = document.getElementById('plantSearch').value.trim();
+      if (searchTerm) {
+        document.getElementById('newPlantName').value = searchTerm;
+      }
+      
+      // Focus on name field
+      document.getElementById('newPlantName').focus();
+      console.log('showAddPlantForm completed');
+    }
+    
+    function hideAddPlantForm() {
+      console.log('hideAddPlantForm called - hiding plant form');
+      document.getElementById('addPlantForm').style.display = 'none';
+      
+      // Clear form
+      if (document.getElementById('newPlantName')) document.getElementById('newPlantName').value = '';
+      if (document.getElementById('newPlantTown')) document.getElementById('newPlantTown').value = '';
+      if (document.getElementById('newPlantCountry')) document.getElementById('newPlantCountry').value = '';
+      console.log('hideAddPlantForm completed');
+    }
+    
+    function showEditPlantForm(plant) {
+      console.log('showEditPlantForm called with plant:', plant);
+      
+      // Show edit form with plant data (it's already inside plantSelectionForm)
+      console.log('Showing editPlantForm element');
+      const editForm = document.getElementById('editPlantForm');
+      console.log('editPlantForm element:', editForm);
+      if (editForm) {
+        editForm.style.display = 'block';
+        console.log('editPlantForm shown');
+      }
+      
+      document.getElementById('editPlantId').value = plant.id;
+      document.getElementById('editPlantName').value = plant.name || '';
+      document.getElementById('editPlantTown').value = plant.town || '';
+      document.getElementById('editPlantCountry').value = plant.country || '';
+      console.log('Form fields populated');
+
+      // Make sure cancel button has event listener only once
+      const cancelBtn = document.getElementById('cancelEditPlant');
+      if (cancelBtn && !cancelBtn.hasEventListener) {
+        cancelBtn.addEventListener('click', function() {
+          hideEditPlantForm();
+        });
+        cancelBtn.hasEventListener = true;
+      }
+
+      // Focus on name field
+      document.getElementById('editPlantName').focus();
+      console.log('showEditPlantForm completed');
+    }
+    
+    function hideEditPlantForm() {
+      console.log('hideEditPlantForm called - hiding edit form');
+      document.getElementById('editPlantForm').style.display = 'none';
+      
+      // If we have a selected plant, return to collapsed view
+      if (selectedPlant) {
+        document.getElementById('plantSelectionForm').style.display = 'none';
+        document.getElementById('collapsedPlant').style.display = 'block';
+      }
+      
+      // Clear form
+      document.getElementById('editPlantId').value = '';
+      document.getElementById('editPlantName').value = '';
+      document.getElementById('editPlantLocation').value = '';
+      document.getElementById('editPlantType').value = '';
+      console.log('hideEditPlantForm completed');
+    }
+    
+    async function handleAddPlant(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('newPlantName').value.trim();
+      const town = document.getElementById('newPlantTown') ? document.getElementById('newPlantTown').value.trim() : '';
+      const country = document.getElementById('newPlantCountry') ? document.getElementById('newPlantCountry').value.trim() : '';
+
+      if (!name) {
+        showError('Please enter a plant name.');
+        return;
+      }
+
+      try {
+        if (!selectedCustomer) {
+          showError('No customer selected.');
+          return;
+        }
+        const payload = {
+          name: name,
+          customer_id: selectedCustomer.id
+        };
+        if (town) payload.town = town;
+        if (country) payload.country = country;
+        const response = await fetch(`${API_BASE}/plants`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const newPlant = await response.json();
+        allPlants.push(newPlant);
+        hideAddPlantForm();
+        selectPlant(newPlant);
+        showSuccess(`Plant "${name}" added successfully`);
+      } catch (error) {
+        console.error('Error creating plant:', error);
+        showError('Failed to create plant. Please try again.');
+      }
+
+      try {
+        const payload = { name };
+        if (town) payload.town = town;
+        if (country) payload.country = country;
+        payload.customer_id = selectedCustomer.id;
+
+        const response = await fetch(`${API_BASE}/plants`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const newPlant = await response.json();
+        allPlants.push(newPlant);
+        selectPlant(newPlant);
+        hideAddPlantForm();
+        showSuccess(`Plant "${name}" added successfully`);
+      } catch (error) {
+        console.error('Error adding plant:', error);
+        showError('Failed to add plant. Please try again.');
+      }
+    }
+    
+    async function handleEditPlant(event) {
+      event.preventDefault();
+      
+      const id = document.getElementById('editPlantId').value;
+      const name = document.getElementById('editPlantName').value.trim();
+      const location = document.getElementById('editPlantLocation').value.trim();
+      const type = document.getElementById('editPlantType').value.trim();
+      
+      if (!name) {
+        showError('Plant name is required');
+        return;
+      }
+      
+      try {
+        const response = await fetch(`${API_BASE}/plants/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name,
+            location: location,
+            type: type
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const updatedPlant = await response.json();
+        
+        // Update in allPlants array
+        const index = allPlants.findIndex(p => p.id === parseInt(id));
+        if (index !== -1) {
+          allPlants[index] = updatedPlant;
+        }
+        
+        // Update selected plant if it's the one being edited
+        if (selectedPlant && selectedPlant.id === parseInt(id)) {
+          selectedPlant = updatedPlant;
+          updatePlantDisplay();
+        }
+        
+        // Hide form
+        hideEditPlantForm();
+        
+        showSuccess(`Plant "${name}" updated successfully`);
+      } catch (error) {
+        console.error('Error updating plant:', error);
+        showError('Failed to update plant. Please try again.');
+      }
+    }
+    
+    function updatePlantDisplay() {
+      if (selectedPlant) {
+        document.getElementById('collapsedPlantName').textContent = selectedPlant.name;
+        
+        // Format plant location using town and country (like customer)
+        let locationText = '';
+        if (selectedPlant.town && selectedPlant.country) {
+          locationText = `${selectedPlant.town}, ${selectedPlant.country}`;
+        } else if (selectedPlant.town) {
+          locationText = selectedPlant.town;
+        } else if (selectedPlant.country) {
+          locationText = selectedPlant.country;
+        } else {
+          locationText = 'Location not specified';
+        }
+        
+        document.getElementById('collapsedPlantLocation').textContent = locationText;
+      }
+    }
+
+  </script>
+</body>
+</html>

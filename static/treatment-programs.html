@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Treatment Programs Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="/static/common-header.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        
+        .context-card {
+            border: none;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+        .context-card-header {
+            background-color: var(--theme-primary);
+            color: var(--theme-text);
+            padding: 1.5rem;
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .context-card-body {
+            padding: 2rem;
+            background: white;
+        }
+        .info-item {
+            padding: 1rem 0;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+        .info-value {
+            color: #212529;
+            font-size: 1.1rem;
+        }
+        .btn-close-custom {
+            background-color: #6c757d;
+            border-color: #6c757d;
+            color: white;
+        }
+        .btn-close-custom:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            color: white;
+        }
+        .btn-primary {
+            background-color: var(--theme-primary);
+            border-color: var(--theme-primary);
+            color: var(--theme-text);
+        }
+        .btn-primary:hover {
+            background-color: var(--theme-primary-dark);
+            border-color: var(--theme-primary-dark);
+            color: var(--theme-text);
+        }
+        .spinner-border.text-primary {
+            color: var(--theme-primary) !important;
+        }
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+        }
+        .error-state {
+            text-align: center;
+            padding: 3rem;
+            color: #6c757d;
+        }
+        .placeholder-content {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            border-top: none;
+        }
+        .table td {
+            vertical-align: middle;
+        }
+        /* Override btn-group-sm for more spacing like sales.html */
+        .btn-group-sm .btn {
+            padding: 6px 12px;
+            font-size: 0.875rem;
+            margin-right: 0.5rem;
+        }
+        
+        .btn-group-sm .btn:last-child {
+            margin-right: 0;
+        }
+        
+        /* Compact buttons for table actions */
+        .btn-compact {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
+        
+        /* Plus button styling */
+        .btn-plus {
+            width: 36px;
+            height: 36px;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* John Cockerill brand button styling to match sales.html */
+        .btn {
+            border-radius: 0;
+            font-weight: 600;
+            padding: 10px 20px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background-color: #113a4c;
+            border-color: #113a4c;
+        }
+        
+        .btn-primary:hover {
+            background-color: #000000;
+            border-color: #000000;
+        }
+        
+        .btn-warning {
+            background-color: #e5dddf;
+            border-color: #e5dddf;
+            color: #000000;
+        }
+        
+        .btn-warning:hover {
+            background-color: #d9d0d3;
+            border-color: #d9d0d3;
+            color: #000000;
+        }
+        
+        .btn-danger {
+            background-color: #dc3545;
+            border-color: #dc3545;
+        }
+        
+        .btn-danger:hover {
+            background-color: #bb2d3b;
+            border-color: #bb2d3b;
+        }
+        
+        /* Tooltip row styling */
+        tr[data-bs-toggle="tooltip"]:hover {
+            background-color: rgba(13, 110, 253, 0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-spinner">
+            <div class="text-center">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading plant and customer information...</p>
+            </div>
+        </div>
+
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <i class="bi bi-exclamation-triangle text-warning" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Unable to Load Information</h4>
+            <p class="text-muted">Please check if the customer and plant information is valid and try again.</p>
+            <button onclick="location.reload()" class="btn btn-primary" title="Retry">
+                <i class="bi bi-arrow-repeat me-1"></i> Retry
+            </button>
+        </div>
+
+        <!-- Content -->
+        <div id="contentContainer" style="display: none;">
+            <!-- Active Context Information -->
+            <div class="context-card">
+                <div class="context-card-header">
+                    <h3 class="mb-0">
+                        <i class="bi bi-building-gear me-2"></i>
+                        Active Context
+                    </h3>
+                </div>
+                <div class="context-card-body">
+                    <div class="d-flex align-items-center gap-4">
+                        <div style="font-size: 1.1rem;">
+                            <strong>Customer:</strong> <span id="customerName">-</span>
+                        </div>
+                        <div style="font-size: 1.1rem;">
+                            <strong>Plant:</strong> <span id="plantName">-</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treatment Programs Content -->
+            <div class="row">
+                <!-- Left Column: Treatment Programs List -->
+                <div class="col-md-6">
+                    <div class="context-card">
+                        <div class="context-card-header">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <h4 class="mb-0">
+                                    <i class="bi bi-table me-2"></i>Treatment Programs
+                                </h4>
+                                <button class="btn btn-warning btn-plus" onclick="showCreateProgramModal()" title="Create New Treatment Program">
+                                    <i class="bi bi-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="context-card-body">
+                            <!-- Programs table -->
+                            <div id="programsTable" style="display: none;">
+                                <div class="table-responsive">
+                                    <table class="table table-hover table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Number</th>
+                                                <th>Name</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="programsTableBody">
+                                            <!-- Programs will be loaded here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
+                            <!-- Empty state -->
+                            <div id="emptyState" class="text-center py-4">
+                                <i class="bi bi-table text-muted" style="font-size: 2rem;"></i>
+                                <h6 class="mt-3 text-muted">No Treatment Programs Yet</h6>
+                                <p class="text-muted small">
+                                    Create your first treatment program for:<br>
+                                    <strong id="contextSummary">Loading context...</strong>
+                                </p>
+                            </div>
+                            
+                            <!-- Loading state for programs -->
+                            <div id="programsLoading" class="text-center py-4" style="display: none;">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading programs...</span>
+                                </div>
+                                <p class="mt-2 text-muted small">Loading treatment programs...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Additional Features (placeholder for future development) -->
+                <div class="col-md-6">
+                    <div class="context-card">
+                        <div class="context-card-header">
+                            <h4 class="mb-0">
+                                <i class="bi bi-gear me-2"></i>Program Details
+                            </h4>
+                        </div>
+                        <div class="context-card-body">
+                            <div class="text-center py-5">
+                                <i class="bi bi-tools text-muted" style="font-size: 3rem;"></i>
+                                <h5 class="mt-3 text-muted">Additional Features</h5>
+                                <p class="text-muted">
+                                    Select a treatment program from the left to view details, 
+                                    edit program steps, or configure advanced settings.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Program Modal -->
+    <div class="modal fade" id="createProgramModal" tabindex="-1" aria-labelledby="createProgramModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--theme-primary); color: var(--theme-text);">
+                    <h5 class="modal-title" id="createProgramModalLabel">
+                        <i class="bi bi-plus-circle me-2"></i>Create New Treatment Program
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="createProgramForm">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <div class="mb-3">
+                                    <label for="programName" class="form-label">Program Name *</label>
+                                    <input type="text" class="form-control" id="programName" required 
+                                           placeholder="Type name for treatment program">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label for="programNumber" class="form-label">Program Number *</label>
+                                    <input type="number" class="form-control" id="programNumber" required 
+                                           placeholder="Loading..." min="1" onchange="validateProgramNumber()">
+                                    <div class="form-text" id="nextNumberInfo">
+                                        Finding next available number...
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="programDescription" class="form-label">Description & Purpose</label>
+                            <textarea class="form-control" id="programDescription" rows="4" 
+                                      placeholder="Describe the treatment program characteristics, intended use, and special features..."></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" title="Cancel">
+                        <i class="bi bi-x me-2"></i>Cancel
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="createProgram()" title="Create Program">
+                        <i class="bi bi-check me-2"></i>Create Program
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        class TreatmentProgramManager {
+            constructor() {
+                this.customerId = this.getUrlParameter('customerId');
+                this.plantId = this.getUrlParameter('plantId');
+                this.theme = this.getUrlParameter('theme') || 'default';
+                
+                // Apply theme first
+                this.applyTheme();
+                
+                if (this.customerId && this.plantId) {
+                    this.loadContext();
+                } else {
+                    this.showError("Missing customer or plant information in URL parameters");
+                }
+            }
+
+            getUrlParameter(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            applyTheme() {
+                const themes = {
+                    sales: {
+                        primary: '#113a4c',
+                        primaryDark: '#0d2a3a',
+                        text: 'white'
+                    },
+                    engineering: {
+                        primary: '#9de2e7',
+                        primaryDark: '#7dd5db',
+                        text: '#000000'
+                    },
+                    training: {
+                        primary: '#ff7331',
+                        primaryDark: '#e65a1c',
+                        text: 'white'
+                    },
+                    simulation: {
+                        primary: '#e5dddf',
+                        primaryDark: '#d9d0d3',
+                        text: '#000000'
+                    },
+                    default: {
+                        primary: '#113a4c',
+                        primaryDark: '#0d2a3a',
+                        text: 'white'
+                    }
+                };
+
+                const selectedTheme = themes[this.theme] || themes.default;
+                
+                // Apply CSS custom properties
+                const root = document.documentElement;
+                root.style.setProperty('--theme-primary', selectedTheme.primary);
+                root.style.setProperty('--theme-primary-dark', selectedTheme.primaryDark);
+                root.style.setProperty('--theme-text', selectedTheme.text);
+                
+                // Update page title with theme context
+                const themeNames = {
+                    sales: 'Sales',
+                    engineering: 'Engineering', 
+                    training: 'Training',
+                    simulation: 'Simulation'
+                };
+                
+                const contextName = themeNames[this.theme] || '';
+                if (contextName) {
+                    document.title = `Treatment Programs - ${contextName} Context`;
+                }
+            }
+
+            async loadContext() {
+                try {
+                    // Load customer and plant information
+                    const [customerResponse, plantResponse] = await Promise.all([
+                        fetch(`/customers/${this.customerId}`),
+                        fetch(`/plants/${this.plantId}`)
+                    ]);
+
+                    if (!customerResponse.ok) {
+                        throw new Error('Customer not found');
+                    }
+                    if (!plantResponse.ok) {
+                        throw new Error('Plant not found');
+                    }
+
+                    const customer = await customerResponse.json();
+                    const plant = await plantResponse.json();
+
+                    // Verify plant belongs to customer
+                    if (plant.customer_id !== parseInt(this.customerId)) {
+                        throw new Error('Plant does not belong to the specified customer');
+                    }
+
+                    this.displayContext(customer, plant);
+                    
+                } catch (error) {
+                    console.error('Error loading context:', error);
+                    this.showError(error.message);
+                }
+            }
+
+            displayContext(customer, plant) {
+                // Update customer and plant information
+                document.getElementById('customerName').textContent = customer.name;
+                document.getElementById('plantName').textContent = plant.name;
+
+                // Update context summary
+                document.getElementById('contextSummary').textContent = 
+                    `${customer.name} → ${plant.name}`;
+
+                // Show content and hide loading
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('contentContainer').style.display = 'block';
+
+                // Update page title
+                document.title = `Treatment Programs - ${plant.name}`;
+                
+                // Load treatment programs for this plant
+                this.loadTreatmentPrograms();
+            }
+
+            formatLocation(town, country) {
+                if (town && country) {
+                    return `${town}, ${country}`;
+                } else if (town) {
+                    return town;
+                } else if (country) {
+                    return country;
+                } else {
+                    return 'Location not specified';
+                }
+            }
+
+            showError(message) {
+                document.getElementById('loadingState').style.display = 'none';
+                document.getElementById('errorState').style.display = 'block';
+                
+                // Update error message if provided
+                if (message) {
+                    const errorElement = document.querySelector('#errorState p');
+                    errorElement.textContent = message;
+                }
+            }
+
+            async loadTreatmentPrograms() {
+                const programsTable = document.getElementById('programsTable');
+                const emptyState = document.getElementById('emptyState');
+                const programsLoading = document.getElementById('programsLoading');
+                
+                try {
+                    // Show loading state
+                    programsTable.style.display = 'none';
+                    emptyState.style.display = 'none';
+                    programsLoading.style.display = 'block';
+                    
+                    // Fetch programs from API
+                    console.log('Loading treatment programs for plant:', this.plantId);
+                    
+                    const response = await fetch(`/plants/${this.plantId}/treatment_programs`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`Failed to load programs: ${response.status}`);
+                    }
+                    
+                    const programs = await response.json();
+                    
+                    // Hide loading
+                    programsLoading.style.display = 'none';
+                    
+                    if (programs.length === 0) {
+                        // Show empty state
+                        emptyState.style.display = 'block';
+                    } else {
+                        // Show programs table
+                        this.renderProgramsTable(programs);
+                        programsTable.style.display = 'block';
+                    }
+                    
+                } catch (error) {
+                    console.error('Error loading treatment programs:', error);
+                    programsLoading.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    
+                    // Show error message
+                    showErrorMessage('Failed to load treatment programs. Please try refreshing the page.');
+                }
+            }
+
+            renderProgramsTable(programs) {
+                const tableBody = document.getElementById('programsTableBody');
+                
+                // Dispose existing tooltips to prevent memory leaks
+                const existingTooltips = tableBody.querySelectorAll('[data-bs-toggle="tooltip"]');
+                existingTooltips.forEach(el => {
+                    const tooltip = bootstrap.Tooltip.getInstance(el);
+                    if (tooltip) {
+                        tooltip.dispose();
+                    }
+                });
+                
+                // Sort programs by number
+                programs.sort((a, b) => a.program_number - b.program_number);
+                
+                // Generate HTML for table rows
+                const rowsHTML = programs.map(program => {
+                    const description = program.description || 'No description provided';
+                    // Escape quotes for tooltip attribute
+                    const escapedDescription = description.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+                    
+                    return `
+                        <tr data-bs-toggle="tooltip" data-bs-placement="right" 
+                            data-bs-title="${escapedDescription}" 
+                            style="cursor: pointer;">
+                            <td><strong>${program.program_number}</strong></td>
+                            <td>${program.program_name}</td>
+                            <td>
+                                <div class="d-flex">
+                                    <button class="btn btn-warning btn-compact me-1" onclick="editProgram(${program.id})" title="Edit Program">
+                                        <i class="bi bi-pencil"></i>
+                                    </button>
+                                    <button class="btn btn-danger btn-compact" onclick="deleteProgram(${program.id}, '${program.program_name}')" title="Delete Program">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                tableBody.innerHTML = rowsHTML;
+                
+                // Initialize Bootstrap tooltips for the new rows
+                const tooltipTriggerList = tableBody.querySelectorAll('[data-bs-toggle="tooltip"]');
+                const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl));
+            }
+        }
+
+        // ========================================
+        // TREATMENT PROGRAM FUNCTIONS
+        // ========================================
+        
+        // Edit program (placeholder for future implementation)
+        function editProgram(programId) {
+            console.log('Edit program:', programId);
+            // TODO: Implement edit functionality
+            showErrorMessage('Edit functionality will be implemented later.');
+        }
+        
+        // Delete program (full implementation with API call)
+        async function deleteProgram(programId, programName) {
+            console.log('Delete program:', programId, programName);
+            
+            // Confirm deletion
+            if (!confirm(`Are you sure you want to delete program "${programName}"?\n\nThis will also delete all program steps associated with this program.\nThis action cannot be undone.`)) {
+                return;
+            }
+            
+            try {
+                // Send delete request to API
+                const response = await fetch(`/treatment_programs/${programId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.detail || `Failed to delete program: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Show success message
+                if (result.deleted_steps > 0) {
+                    showSuccessMessage(`Program "${programName}" and ${result.deleted_steps} program steps deleted successfully!`);
+                } else {
+                    showSuccessMessage(`Program "${programName}" deleted successfully!`);
+                }
+                
+                // Refresh programs list
+                manager.loadTreatmentPrograms();
+                console.log('Program deleted successfully');
+                
+            } catch (error) {
+                console.error('Error deleting treatment program:', error);
+                showErrorMessage(`Failed to delete program: ${error.message}`);
+            }
+        }
+        
+        // Show create program modal
+        function showCreateProgramModal() {
+            // Reset form
+            const form = document.getElementById('createProgramForm');
+            form.reset();
+            
+            // Clear validation states and reset info text
+            const numberInput = document.getElementById('programNumber');
+            const createButton = document.querySelector('#createProgramModal .btn-primary');
+            const infoText = document.getElementById('nextNumberInfo');
+            
+            numberInput.classList.remove('is-valid', 'is-invalid');
+            numberInput.placeholder = 'Loading...';
+            infoText.innerHTML = 'Finding next available number...';
+            infoText.className = 'form-text text-info';
+            createButton.disabled = false;
+            
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('createProgramModal'));
+            modal.show();
+            
+            // Load next available program number
+            loadNextProgramNumber();
+        }
+        
+        // Load next available program number
+        async function loadNextProgramNumber() {
+            const numberInput = document.getElementById('programNumber');
+            const infoText = document.getElementById('nextNumberInfo');
+            
+            try {
+                // Fetch existing program numbers from database
+                console.log('Fetching existing program numbers for plant:', manager.plantId);
+                
+                const response = await fetch(`/plants/${manager.plantId}/treatment-programs/numbers`);
+                
+                if (!response.ok) {
+                    throw new Error(`Failed to fetch program numbers: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                const existingNumbers = data.numbers || [];
+                
+                // Find first free number starting from 1
+                let nextNumber = 1;
+                while (existingNumbers.includes(nextNumber)) {
+                    nextNumber++;
+                }
+                
+                // Update form with next available number
+                numberInput.value = nextNumber;
+                numberInput.placeholder = nextNumber.toString();
+                
+                // Add visual feedback that number is pre-filled
+                numberInput.classList.add('is-valid');
+                infoText.innerHTML = `Next available number: <strong>${nextNumber}</strong>`;
+                infoText.className = 'form-text text-success';
+                
+            } catch (error) {
+                console.error('Error loading next program number:', error);
+                numberInput.value = '';
+                numberInput.placeholder = '1';
+                infoText.innerHTML = 'Could not determine next number. Please enter manually.';
+                infoText.className = 'form-text text-warning';
+            }
+        }
+        
+        // Create new treatment program
+        async function createProgram() {
+            const form = document.getElementById('createProgramForm');
+            const createButton = document.querySelector('#createProgramModal .btn-primary');
+            
+            // Validate form
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            
+            const programData = {
+                name: document.getElementById('programName').value.trim(),
+                number: parseInt(document.getElementById('programNumber').value),
+                description: document.getElementById('programDescription').value.trim() || null,
+                plant_id: manager.plantId
+            };
+            
+            // Disable button and show loading
+            createButton.disabled = true;
+            createButton.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Creating...';
+            
+            try {
+                // First check if program number already exists
+                const checkResponse = await fetch(`/plants/${manager.plantId}/treatment-programs/check-number/${programData.number}`);
+                
+                if (checkResponse.ok) {
+                    const checkData = await checkResponse.json();
+                    if (checkData.exists) {
+                        throw new Error(`Program number ${programData.number} is already in use. Please choose a different number.`);
+                    }
+                }
+                
+                // Create the treatment program
+                console.log('Creating treatment program:', programData);
+                
+                const response = await fetch(`/plants/${manager.plantId}/treatment-programs`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(programData)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `Failed to create program: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                
+                // Close modal
+                bootstrap.Modal.getInstance(document.getElementById('createProgramModal')).hide();
+                
+                // Show success message
+                showSuccessMessage(`Treatment program "${programData.name}" (Number: ${programData.number}) created successfully!`);
+                
+                // Refresh programs list
+                manager.loadTreatmentPrograms();
+                console.log('Program created with ID:', result.id);
+                
+            } catch (error) {
+                console.error('Error creating treatment program:', error);
+                showErrorMessage(error.message);
+            } finally {
+                // Re-enable button
+                createButton.disabled = false;
+                createButton.innerHTML = '<i class="bi bi-check me-2"></i>Create Program';
+            }
+        }
+        
+        // Validate program number in real-time
+        async function validateProgramNumber() {
+            const numberInput = document.getElementById('programNumber');
+            const infoText = document.getElementById('nextNumberInfo');
+            const createButton = document.querySelector('#createProgramModal .btn-primary');
+            
+            const enteredNumber = parseInt(numberInput.value);
+            
+            if (!enteredNumber || enteredNumber < 1) {
+                infoText.textContent = 'Please enter a valid program number';
+                infoText.className = 'form-text text-muted';
+                return;
+            }
+            
+            try {
+                infoText.textContent = 'Checking availability...';
+                infoText.className = 'form-text text-info';
+                
+                const response = await fetch(`/plants/${manager.plantId}/treatment-programs/check-number/${enteredNumber}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    
+                    if (data.exists) {
+                        numberInput.classList.add('is-invalid');
+                        infoText.textContent = `Program number ${enteredNumber} is already in use`;
+                        infoText.className = 'form-text text-danger';
+                        createButton.disabled = true;
+                    } else {
+                        numberInput.classList.remove('is-invalid');
+                        numberInput.classList.add('is-valid');
+                        infoText.textContent = `Program number ${enteredNumber} is available`;
+                        infoText.className = 'form-text text-success';
+                        createButton.disabled = false;
+                    }
+                } else {
+                    throw new Error('Unable to check number availability');
+                }
+                
+            } catch (error) {
+                console.error('Error validating program number:', error);
+                numberInput.classList.remove('is-invalid', 'is-valid');
+                infoText.textContent = 'Unable to verify number availability';
+                infoText.className = 'form-text text-warning';
+                createButton.disabled = false; // Allow creation anyway
+            }
+        }
+        
+        // Show success message
+        function showSuccessMessage(message) {
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-success alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="bi bi-check-circle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        // Show error message
+        function showErrorMessage(message) {
+            // Create alert element
+            const alert = document.createElement('div');
+            alert.className = 'alert alert-danger alert-dismissible fade show position-fixed';
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                <i class="bi bi-exclamation-triangle me-2"></i>${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            
+            document.body.appendChild(alert);
+            
+            // Auto-remove after 8 seconds (longer for errors)
+            setTimeout(() => {
+                if (alert.parentNode) {
+                    alert.remove();
+                }
+            }, 8000);
+        }
+
+        // ========================================
+        // INITIALIZATION
+        // ========================================
+        
+        let manager; // Make manager globally accessible
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize treatment program manager first to get theme
+            manager = new TreatmentProgramManager();
+            
+            // Initialize universal header with the theme from URL parameters
+            createHeader({ theme: manager.theme });
+        });
+        
+        /*
+        ========================================
+        REQUIRED BACKEND API ENDPOINTS
+        ========================================
+        
+        1. GET /plants/{plantId}/treatment-programs/numbers
+           - Returns: { "numbers": [1, 2, 3, 5, 7, 10] }
+           - Purpose: Get list of existing program numbers for a plant
+           
+        2. GET /plants/{plantId}/treatment-programs/check-number/{number}
+           - Returns: { "exists": true/false, "program_id": 123 (if exists) }
+           - Purpose: Check if specific program number is already used
+           
+        3. POST /plants/{plantId}/treatment-programs
+           - Body: { "name": "string", "number": int, "description": "string", "plant_id": int }
+           - Returns: { "id": 123, "name": "string", "number": int, "created_at": "timestamp" }
+           - Purpose: Create new treatment program
+           
+        4. Error responses should include:
+           - Status codes: 400 (validation), 404 (not found), 409 (conflict), 500 (server error)
+           - Body: { "error": "descriptive error message" }
+        */
+    </script>
+</body>
+</html>

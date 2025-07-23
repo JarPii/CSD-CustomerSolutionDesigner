@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Surface Treatment Plants - Basic Line & Layout</title>
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Universal Header System -->
+  <script src="/static/common-header.js"></script>
+  <!-- Tank Layout Renderer Module -->
+  <script src="/static/js/tank-layout-renderer.js"></script>
+  <style>
+    /* SALES TEEMAN VÄRIT */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8f9fa;
+    }
+    
+    .main-container {
+      min-height: 100vh;
+      padding: 40px 20px 140px 20px;
+      position: relative;
+    }
+    
+    /* Content container */
+    .main-content { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+    }
+    
+    /* Customer and Plant display section */
+    .selection-display {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 0;
+      margin-bottom: 30px;
+    }
+
+    
+
+    
+    /* No selection message */
+    .no-selection {
+      text-align: center;
+      padding: 40px 20px;
+      color: #6c757d;
+    }
+    
+    .no-selection i {
+      font-size: 3rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+    
+    .no-selection h3 {
+      font-size: 1.3rem;
+      margin-bottom: 10px;
+      color: #495057;
+    }
+    
+    .no-selection p {
+      margin-bottom: 20px;
+    }
+    
+    .btn-sales {
+      background: #113a4c;
+      color: #ffffff;
+      border: 1px solid #113a4c;
+      border-radius: 6px;
+      font-weight: 500;
+      padding: 10px 20px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+    
+    .btn-sales:hover {
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #000000;
+      transform: translateY(-1px);
+    }
+    
+    /* Brand footer */
+    .brand-footer {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .jc-logo {
+      height: 60px;
+      width: auto;
+    }
+    
+    .brand-text {
+      color: #000000;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    
+    @media (max-width: 768px) {
+      .main-container {
+        padding-bottom: 160px;
+      }
+      
+      .brand-footer {
+        bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container main-container">
+    <div class="main-content">
+      
+      <!-- Customer and Plant Selection Display -->
+      <div class="selection-display">
+        <div id="selectionContent">
+          <!-- Content will be populated by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Layout Canvas Area -->
+      <div id="layoutSection" style="display: none; margin-top: 20px;">
+        <div style="background: #ffffff; border-radius: 8px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); padding: 20px;">
+          <h3 id="layoutTitle" style="color: #113a4c; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <i class="bi bi-grid-3x3-gap"></i>
+              Layout Visualization
+            </div>
+            <div class="btn-group" role="group" aria-label="View mode">
+              <input type="radio" class="btn-check" name="viewMode" id="view2D" checked>
+              <label class="btn btn-outline-primary btn-sm" for="view2D">2D</label>
+              
+              <input type="radio" class="btn-check" name="viewMode" id="view3D">
+              <label class="btn btn-outline-primary btn-sm" for="view3D">3D</label>
+            </div>
+          </h3>
+          <div style="height: 600px; border: 1px solid #e9ecef; border-radius: 6px; background: #f8f9fa;">
+            <canvas id="layoutCanvas" style="width: 100%; height: 100%; display: block;"></canvas>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <!-- John Cockerill branding -->
+    <div class="brand-footer">
+      <img src="https://res.cloudinary.com/brandpad/image/upload/c_scale,dpr_auto,f_auto,w_512/v1551357514/2215/john_cockerill_logo_black_screen" 
+           class="jc-logo" 
+           alt="John Cockerill">
+      <span class="brand-text">Surface Treatment</span>
+    </div>
+  </div>
+
+  <script>
+    // Global variables
+    let currentTheme = 'sales'; // Default to sales theme for this page
+    
+    // Load and display current customer/plant selection
+    async function loadSelection() {
+      const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
+      const contentDiv = document.getElementById('selectionContent');
+      
+      // Ensure the element exists before modifying it
+      if (!contentDiv) {
+        console.error('Element with ID selectionContent not found');
+        return;
+      }
+      
+      if (selection && selection.customer && selection.plant) {
+        // Format plant location
+        let plantLocation = '';
+        if (selection.plant.town && selection.plant.country) {
+          plantLocation = `${selection.plant.town}, ${selection.plant.country}`;
+        } else if (selection.plant.town) {
+          plantLocation = selection.plant.town;
+        } else if (selection.plant.country) {
+          plantLocation = selection.plant.country;
+        } else if (selection.plant.location) {
+          plantLocation = selection.plant.location;
+        } else {
+          plantLocation = 'Location not specified';
+        }
+        
+        // Start building the content
+        let contentHTML = `
+          <div style="padding: 15px 20px; font-size: 1.3rem; color: #495057; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+            <i class="bi bi-buildings" style="color: #113a4c; font-size: 1.4rem;"></i>
+            <span style="color: #113a4c; font-weight: 700; font-size: 1.4rem;">Current Selection:</span>
+            <span style="color: #000; font-weight: 600;">${selection.customer.name}</span>
+            <span style="color: #6c757d; font-weight: 500;">→</span>
+            <span style="color: #000; font-weight: 600;">${selection.plant.name}</span>
+            <span style="color: #6c757d; font-size: 1.1rem;">${plantLocation}</span>
+            <span style="color: #113a4c; font-weight: 700; font-size: 1.4rem;">Lines:</span>
+        `;
+        
+        try {
+          // Fetch lines for this plant
+          const response = await fetch(`/plants/${selection.plant.id}/lines`);
+          if (response.ok) {
+            const lines = await response.json();
+            
+            if (lines && lines.length > 0) {
+              // Add line buttons
+              lines.forEach(line => {
+                contentHTML += `
+                  <button onclick="selectLine('${line.id}', '${line.line_number}')" 
+                          style="background: #113a4c; color: white; border: none; border-radius: 6px; 
+                                 padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
+                                 cursor: pointer; transition: all 0.2s ease; margin-left: 5px;"
+                          onmouseover="this.style.background='#000000'" 
+                          onmouseout="this.style.background='#113a4c'">
+                    ${line.line_number}
+                  </button>
+                `;
+              });
+              
+              // Add "Add new line" button
+              contentHTML += `
+                <button onclick="addNewLine()" 
+                        title="Add new line"
+                        style="background: #6c757d; color: white; border: none; border-radius: 6px; 
+                               padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
+                               cursor: pointer; transition: all 0.2s ease; margin-left: 5px;"
+                        onmouseover="this.style.background='#495057'" 
+                        onmouseout="this.style.background='#6c757d'">
+                  +
+                </button>
+              `;
+            } else {
+              contentHTML += `
+                <span style="color: #6c757d; font-style: italic; font-size: 1.1rem; margin-left: 5px;">
+                  No lines found
+                </span>
+                
+                <!-- Add "Add new line" button when no lines exist -->
+                <button onclick="addNewLine()" 
+                        title="Add new line"
+                        style="background: #113a4c; color: white; border: none; border-radius: 6px; 
+                               padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
+                               cursor: pointer; transition: all 0.2s ease; margin-left: 10px;"
+                        onmouseover="this.style.background='#000000'" 
+                        onmouseout="this.style.background='#113a4c'">
+                  +
+                </button>
+              `;
+            }
+          } else {
+            contentHTML += `
+              <span style="color: #dc3545; font-size: 1.1rem; margin-left: 5px;">
+                Error loading lines
+              </span>
+            `;
+          }
+        } catch (error) {
+          console.error('Error fetching lines:', error);
+          contentHTML += `
+            <span style="color: #dc3545; font-size: 1.1rem; margin-left: 5px;">
+              Error loading lines
+            </span>
+          `;
+        }
+        
+        contentHTML += `
+          </div>
+        `;
+        
+        contentDiv.innerHTML = contentHTML;
+      } else {
+        // No selection found
+        contentDiv.innerHTML = `
+          <div class="no-selection">
+            <i class="bi bi-exclamation-triangle"></i>
+            <h3>No Customer or Plant Selected</h3>
+            <p>Please select a customer and plant before accessing the layout design tools.</p>
+            <a href="/static/customer-plant-selection.html?theme=sales&return=basic-line-layout.html" class="btn-sales">
+              <i class="bi bi-buildings"></i> Select Customer & Plant
+            </a>
+          </div>
+        `;
+      }
+    }
+    
+    // Handle line selection
+    async function selectLine(lineId, lineNumber) {
+      console.log(`Selected line: ${lineNumber} (ID: ${lineId})`);
+      
+      // Store selected line in sessionStorage
+      const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
+      if (selection) {
+        selection.selectedLine = {
+          id: lineId,
+          line_number: lineNumber
+        };
+        sessionStorage.setItem('customerPlantSelection', JSON.stringify(selection));
+      }
+      
+      // Update layout title - preserve the view mode toggle
+      const titleElement = document.getElementById('layoutTitle');
+      const titleText = titleElement.querySelector('div:first-child');
+      if (titleText) {
+        titleText.innerHTML = `
+          <i class="bi bi-grid-3x3-gap"></i>
+          Line ${lineNumber} Layout
+        `;
+      } else {
+        // Fallback if structure is different
+        titleElement.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <i class="bi bi-grid-3x3-gap"></i>
+            Line ${lineNumber} Layout
+          </div>
+          <div class="btn-group" role="group" aria-label="View mode">
+            <input type="radio" class="btn-check" name="viewMode" id="view2D" checked>
+            <label class="btn btn-outline-primary btn-sm" for="view2D">2D</label>
+            
+            <input type="radio" class="btn-check" name="viewMode" id="view3D">
+            <label class="btn btn-outline-primary btn-sm" for="view3D">3D</label>
+          </div>
+        `;
+      }
+      
+      // Show layout section
+      document.getElementById('layoutSection').style.display = 'block';
+      
+      // Scroll to layout section smoothly
+      document.getElementById('layoutSection').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+      });
+      
+      try {
+        // Fetch tanks for this line
+        const response = await fetch(`/lines/${lineId}/tanks`);
+        if (response.ok) {
+          const tanks = await response.json();
+          
+          // Wait a moment for the section to be visible
+          setTimeout(() => {
+            // Initialize tank layout renderer with sales theme and optimized settings
+            const renderer = new TankLayoutRenderer('layoutCanvas', {
+              theme: 'sales',
+              showGrid: true,
+              showEditButtons: true,
+              margin: 15, // Reduced margin for more drawing space
+              maxScale: 8, // Allow higher scaling for better detail with few tanks
+              padding: 8  // Reduced padding for compact layout
+            });
+            
+            // Set up edit callback
+            renderer.onTankEdit = (tank) => {
+              alert(`Edit tank ${tank.number}: ${tank.name}`);
+              // Here you could open a tank edit modal
+            };
+            
+            // Set up view mode toggle handlers
+            document.getElementById('view2D').addEventListener('change', function() {
+              if (this.checked) {
+                renderer.set3DMode(false);
+              }
+            });
+            
+            document.getElementById('view3D').addEventListener('change', function() {
+              if (this.checked) {
+                renderer.set3DMode(true);
+              }
+            });
+            
+            // Draw the layout
+            renderer.drawLayout(tanks, { id: lineId, line_number: lineNumber });
+            
+            console.log(`Layout drawn for line ${lineNumber}: ${tanks.length} tanks`);
+          }, 300);
+          
+        } else {
+          console.error('Failed to fetch tanks:', response.status);
+          document.getElementById('layoutTitle').innerHTML = `
+            <i class="bi bi-exclamation-triangle text-danger"></i>
+            Error loading Line ${lineNumber}
+          `;
+        }
+      } catch (error) {
+        console.error('Error loading layout:', error);
+        document.getElementById('layoutTitle').innerHTML = `
+          <i class="bi bi-exclamation-triangle text-danger"></i>
+          Error loading Line ${lineNumber}
+        `;
+      }
+    }
+    
+    // Handle adding a new line
+    function addNewLine() {
+      const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
+      
+      if (selection && selection.plant) {
+        // Store plant ID in localStorage for the line creation form
+        localStorage.setItem('selectedPlantId', selection.plant.id);
+        
+        // Navigate to the line creation form with theme support
+        alert('Line creation form is not accessible from this page.');
+      } else {
+        alert('Please select a customer and plant first.');
+      }
+    }
+    
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('Page loaded, checking sessionStorage...');
+      console.log('SessionStorage content on page load:', sessionStorage.getItem('customerPlantSelection'));
+      
+      // Ensure the common header is created with the current theme
+      createHeader({ theme: currentTheme });
+      
+      // Try to load selection from sessionStorage first
+      await loadSelection();
+    });
+  </script>
+</body>
+</html>

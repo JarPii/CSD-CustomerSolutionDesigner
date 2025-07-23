@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Surface Treatment Plants - Customer Solution Designer</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <style>
+    body {
+      background: #ffffff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    .main-container {
+      min-height: 100vh;
+      padding: 40px 20px 20px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .content-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .header-section {
+      text-align: center;
+      margin-bottom: 60px;
+    }
+    .page-title {
+      font-size: 2.8rem;
+      color: #000000;
+      margin-bottom: 15px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .page-subtitle {
+      font-size: 1.3rem;
+      color: #113a4c;
+      margin-bottom: 0;
+      font-weight: 400;
+    }
+    .feature-card {
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      border: none;
+      border-radius: 0;
+      overflow: hidden;
+      height: 100%;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+    }
+    .feature-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+    }
+    .card-header {
+      border-bottom: none;
+      padding: 30px 30px 25px 30px;
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .card-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 0;
+      color: white;
+      letter-spacing: -0.01em;
+    }
+    .card-icon {
+      font-size: 2rem;
+      opacity: 0.8;
+    }
+    .training-header .card-icon,
+    .sales-header .card-icon {
+      color: white;
+    }
+    .engineering-header .card-icon,
+    .simulation-header .card-icon {
+      color: #000000;
+    }
+    .card-body {
+      padding: 25px 30px 30px 30px;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .card-description {
+      color: #113a4c;
+      font-size: 1rem;
+      line-height: 1.6;
+      margin-bottom: 25px;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 25px;
+      flex-grow: 1;
+    }
+    .feature-list li {
+      padding: 8px 0;
+      color: #000000;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+    .feature-list li:before {
+      content: "•";
+      color: #ff7331;
+      font-weight: bold;
+      margin-right: 12px;
+      font-size: 1.2em;
+    }
+    .action-btn {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      border-radius: 0;
+      transition: all 0.2s ease;
+      font-weight: 600;
+      text-transform: none;
+      letter-spacing: 0.01em;
+      margin-top: auto;
+    }
+    .action-btn i {
+      font-size: 1.5rem;
+    }
+    .action-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+    .training-header {
+      background: #ff7331;
+    }
+    .sales-header {
+      background: #113a4c;
+    }
+    .engineering-header {
+      background: #9de2e7;
+    }
+    .engineering-header .card-title {
+      color: #000000;
+    }
+    .simulation-header {
+      background: #e5dddf;
+    }
+    .simulation-header .card-title {
+      color: #000000;
+    }
+    .status-badge {
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 0;
+      background: rgba(0,0,0,0.2);
+      color: white;
+      margin-left: 15px;
+      font-weight: 500;
+    }
+    .btn-primary {
+      background-color: #113a4c;
+      border-color: #113a4c;
+    }
+    .btn-primary:hover {
+      background-color: #000000;
+      border-color: #000000;
+    }
+    .btn-success {
+      background-color: #ff7331;
+      border-color: #ff7331;
+    }
+    .btn-success:hover {
+      background-color: #e65a1c;
+      border-color: #e65a1c;
+    }
+    .btn-secondary {
+      background-color: #9de2e7;
+      border-color: #9de2e7;
+      color: #000000;
+    }
+    .btn-secondary:hover {
+      background-color: #7dd5db;
+      border-color: #7dd5db;
+      color: #000000;
+    }
+    .btn-warning {
+      background-color: #e5dddf;
+      border-color: #e5dddf;
+      color: #000000;
+    }
+    .btn-warning:hover {
+      background-color: #d9d0d3;
+      border-color: #d9d0d3;
+      color: #000000;
+    }
+    /* Card-specific button styles matching header colors */
+    .btn-training {
+      background-color: #ff7331;
+      border-color: #ff7331;
+      color: white;
+    }
+    .btn-training:hover {
+      background-color: #e65a1c;
+      border-color: #e65a1c;
+      color: white;
+    }
+    .btn-training:disabled {
+      background-color: #ff7331;
+      border-color: #ff7331;
+      color: white;
+      opacity: 0.65;
+    }
+    .btn-sales {
+      background-color: #113a4c;
+      border-color: #113a4c;
+      color: white;
+    }
+    .btn-sales:hover {
+      background-color: #000000;
+      border-color: #000000;
+      color: white;
+    }
+    .btn-engineering {
+      background-color: #9de2e7;
+      border-color: #9de2e7;
+      color: #000000;
+    }
+    .btn-engineering:hover {
+      background-color: #7dd5db;
+      border-color: #7dd5db;
+      color: #000000;
+    }
+    .btn-simulation {
+      background-color: #e5dddf;
+      border-color: #e5dddf;
+      color: #000000;
+    }
+    .btn-simulation:hover {
+      background-color: #d9d0d3;
+      border-color: #d9d0d3;
+      color: #000000;
+    }
+    .btn-simulation:disabled {
+      background-color: #e5dddf;
+      border-color: #e5dddf;
+      color: #000000;
+      opacity: 0.65;
+    }
+    /* John Cockerill branding in bottom center */
+    .brand-footer {
+      margin-top: auto;
+      padding-top: 60px;
+      padding-bottom: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    
+    .jc-logo {
+      height: 60px;
+      width: auto;
+    }
+    
+    .brand-text {
+      color: #000000;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    
+    /* Cards grid layout - 3 columns responsive */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    /* Ensure 3 columns on larger screens */
+    @media (min-width: 1200px) {
+      .cards-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    /* 2 columns on medium screens */
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .cards-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    /* 1 column on small screens */
+    @media (max-width: 767px) {
+      .cards-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .brand-footer {
+        padding-top: 40px;
+        padding-bottom: 20px;
+      }
+    }
+    
+    @media (max-width: 576px) {
+      .brand-footer {
+        gap: 10px;
+        padding-top: 30px;
+        padding-bottom: 15px;
+      }
+      .jc-logo {
+        height: 45px;
+      }
+      .brand-text {
+        font-size: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container main-container">
+    <div class="content-wrapper">
+      <div class="header-section">
+        <h1 class="page-title">Customer Solution Designer</h1>
+        <p class="page-subtitle">From concept to production-ready surface treatment solutions</p>
+      </div>
+      
+      <div class="row g-4">
+      <!-- Knowledge Hub Card -->
+      <div class="col-lg-6 col-md-6">
+        <div class="card feature-card h-100">
+          <div class="card-header training-header">
+            <h3 class="card-title">Knowledge Hub</h3>
+            <i class="bi bi-lightbulb card-icon"></i>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              AI-powered technical assistant for equipment knowledge and process optimization. Get technical equipment guidance, process optimization tips, troubleshooting assistance, and instant expert knowledge whenever you need it.
+            </p>
+            <a href="/static/knowledge-hub.html" class="btn btn-training action-btn">
+              <i class="bi bi-play-circle"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sales Card -->
+      <div class="col-lg-6 col-md-6">
+        <div class="card feature-card h-100">
+          <div class="card-header sales-header">
+            <h3 class="card-title">Customer's Plant Manager</h3>
+            <i class="bi bi-buildings card-icon"></i>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Customer and production facility management for the sales team. Manage customer data, get production facility overviews, visualize production lines, and create layout views for customers.
+            </p>
+            <a href="/static/sales.html" class="btn btn-sales action-btn">
+              <i class="bi bi-play-circle"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Design Card -->
+      <div class="col-lg-6 col-md-6">
+        <div class="card feature-card h-100">
+          <div class="card-header engineering-header">
+            <h3 class="card-title">Design</h3>
+            <i class="bi bi-tools card-icon"></i>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Technical design and production line layout planning. Create layout designs, position tanks, specify dimensions, and generate technical documentation for your projects.
+            </p>
+            <a href="/static/engineering.html" class="btn btn-engineering action-btn">
+              <i class="bi bi-play-circle"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Simulation Card -->
+      <div class="col-lg-6 col-md-6">
+        <div class="card feature-card h-100">
+          <div class="card-header simulation-header">
+            <h3 class="card-title">
+              Simulation
+            </h3>
+            <i class="bi bi-graph-up card-icon"></i>
+          </div>
+          <div class="card-body">
+            <p class="card-description">
+              Production process simulation and optimization. Run process simulations, calculate capacity, get optimization recommendations, and perform scenario analysis to maximize efficiency.
+            </p>
+            <button class="btn btn-simulation action-btn" onclick="window.location.href='/static/simulation.html'">
+              <i class="bi bi-play-circle"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div> <!-- row -->
+    </div> <!-- content-wrapper -->
+    
+    <!-- John Cockerill branding in bottom center -->
+    <div class="brand-footer">
+      <!-- Official John Cockerill logo from brand guidelines -->
+      <img src="https://res.cloudinary.com/brandpad/image/upload/c_scale,dpr_auto,f_auto,w_512/v1551357514/2215/john_cockerill_logo_black_screen" 
+           class="jc-logo" 
+           alt="John Cockerill">
+      <span class="brand-text">Surface Treatment</span>
+    </div>
+  </div>
+</body>
+</html>

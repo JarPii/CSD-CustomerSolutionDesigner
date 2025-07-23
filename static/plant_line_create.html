@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Create Line for Plant</title>
+  <!-- Bootstrap 5 -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.css">
+  <!-- Universal Header System -->
+  <script src="/static/common-header.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f8f9fa;
+    }
+    .main-container {
+      min-height: 100vh;
+      padding: 40px 20px 140px 20px;
+      position: relative;
+    }
+    .main-content {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .form-card {
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      padding: 30px 30px 20px 30px;
+      margin-bottom: 30px;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 8px;
+    }
+    .form-control {
+      border-radius: 6px;
+      border: 2px solid #e9ecef;
+      padding: 12px 16px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus {
+      border-color: #113a4c;
+      box-shadow: 0 0 0 0.2rem rgba(17, 58, 76, 0.15);
+    }
+    .btn-sales {
+      background: #113a4c;
+      color: #ffffff;
+      border: 1px solid #113a4c;
+      border-radius: 6px;
+      font-weight: 500;
+      padding: 10px 20px;
+      text-decoration: none;
+      display: inline-block;
+      transition: all 0.2s ease;
+    }
+    .btn-sales:hover {
+      background: #000000;
+      color: #ffffff;
+      border: 1px solid #000000;
+      transform: translateY(-1px);
+    }
+    .brand-footer {
+      position: absolute;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+    }
+    .jc-logo {
+      height: 60px;
+      width: auto;
+    }
+    .brand-text {
+      color: #000000;
+      font-size: 1.3rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-align: center;
+    }
+    @media (max-width: 768px) {
+      .main-container {
+        padding-bottom: 160px;
+      }
+      .brand-footer {
+        bottom: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container main-container">
+    <div class="main-content">
+      <!-- Back-nappi poistettu, navigaatio löytyy headerista -->
+      
+      <div class="form-card">
+        <!-- Otsikko poistettu, headerissa on otsikko ja ikoni -->
+        <form id="lineForm" class="mb-4">
+          <div class="mb-3">
+            <label for="lineCount" class="form-label">Number of lines</label>
+            <input id="lineCount" type="number" class="form-control" value="1" min="1" max="1" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="lineNumber" class="form-label">Line number</label>
+            <input id="lineNumber" type="number" class="form-control" value="100" readonly>
+          </div>
+          <div class="mb-3">
+            <label for="tankCount" class="form-label">Number of tanks</label>
+            <input id="tankCount" type="number" class="form-control" value="5" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="tankWidth" class="form-label">Tank width (mm)</label>
+            <input id="tankWidth" type="number" class="form-control" value="1000" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="tankLength" class="form-label">Tank length (mm)</label>
+            <input id="tankLength" type="number" class="form-control" value="2000" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="tankDepth" class="form-label">Tank depth (mm)</label>
+            <input id="tankDepth" type="number" class="form-control" value="1500" min="1">
+          </div>
+          <div class="mb-3">
+            <label for="tankGap" class="form-label">Gap between tanks (mm)</label>
+            <input id="tankGap" type="number" class="form-control" value="200" min="0">
+          </div>
+          <button type="submit" class="btn btn-sales"><i class="bi bi-plus"></i> Create line</button>
+        </form>
+        <div id="resultMsg"></div>
+      <div id="overwritePrompt" style="display:none;"></div>
+      </div>
+    </div>
+    <div class="brand-footer">
+      <img src="https://res.cloudinary.com/brandpad/image/upload/c_scale,dpr_auto,f_auto,w_512/v1551357514/2215/john_cockerill_logo_black_screen" 
+           class="jc-logo" 
+           alt="John Cockerill">
+      <span class="brand-text">Surface Treatment</span>
+    </div>
+  </div>
+  <script>
+    // SALES-teema ja header
+    document.addEventListener('DOMContentLoaded', function() {
+      createHeader({ 
+        theme: 'sales', 
+        pageTitle: 'Create line',
+        pageIcon: 'bi bi-grid-3x3-gap'
+      });
+      // Varmistetaan, että headerin back-nappi käyttää window.history.back()
+      setTimeout(function() {
+        const headerBackBtn = document.querySelector('.header-back-btn');
+        if (headerBackBtn) {
+          headerBackBtn.onclick = function(e) {
+            e.preventDefault();
+            window.history.back();
+          };
+        }
+      }, 100);
+    });
+    // Oletetaan että plant_id on tallennettu localStorageen plant_layout.html:stä
+    const plantId = localStorage.getItem('selectedPlantId');
+    if (!plantId) {
+      document.getElementById('lineForm').style.display = 'none';
+      document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">No plant selected.</div>';
+    }
+    document.getElementById('lineForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const tankCount = parseInt(document.getElementById('tankCount').value);
+      const tankWidth = parseInt(document.getElementById('tankWidth').value);
+      const tankGap = parseInt(document.getElementById('tankGap').value);
+      const min_x = 0;
+      const max_x = tankCount * (tankWidth + tankGap);
+      const lineNumber = parseInt(document.getElementById('lineNumber').value);
+      const lineData = {
+        plant_id: parseInt(plantId),
+        line_number: lineNumber,
+        min_x,
+        max_x,
+        length: parseInt(document.getElementById('tankLength').value),
+        tank_group_count: tankCount,
+        tanks_per_group: 1,
+        tank_width: tankWidth,
+        tank_length: parseInt(document.getElementById('tankLength').value),
+        tank_depth: parseInt(document.getElementById('tankDepth').value),
+        tank_space: tankGap
+      };
+      // Tarkista ensin, onko linja jo olemassa
+      fetch(`http://localhost:8000/plants/${plantId}/lines`)
+        .then(res => res.json())
+      .then(lines => {
+        const exists = lines.some(l => l.line_number === lineNumber);
+        if (exists) {
+          document.getElementById('overwritePrompt').style.display = '';
+          document.getElementById('overwritePrompt').innerHTML = `
+            <div class="alert alert-warning">
+              Line number <b>${lineNumber}</b> already exists.<br>
+              <button id="newLineBtn" class="btn btn-sales btn-sm mt-2">Enter new line number</button>
+              <button id="overwriteBtn" class="btn btn-danger btn-sm mt-2 ms-2">Overwrite existing line</button>
+            </div>
+          `;
+          document.getElementById('resultMsg').innerHTML = '';
+          document.getElementById('newLineBtn').onclick = function() {
+            document.getElementById('overwritePrompt').style.display = 'none';
+            document.getElementById('lineNumber').readOnly = false;
+            document.getElementById('lineNumber').focus();
+          };
+          document.getElementById('overwriteBtn').onclick = function() {
+            document.getElementById('overwritePrompt').innerHTML = '<div class="alert alert-info">Overwriting line...</div>';
+            // Haetaan linjan id numeron perusteella
+            fetch(`http://localhost:8000/plants/${plantId}/lines`)
+              .then(res => res.json())
+              .then(lines => {
+                const line = lines.find(l => l.line_number === lineNumber);
+                if (!line) {
+                  document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Line not found</div>';
+                  return;
+                }
+                // Poista vanha linja id:llä
+                fetch(`http://localhost:8000/lines/${line.id}`, {
+                  method: 'DELETE'
+                })
+                .then(delRes => {
+                  if (delRes.ok) {
+                    // Poiston jälkeen yritetään luoda uudelleen
+                    fetch('http://localhost:8000/lines', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(lineData)
+                    })
+                    .then(newRes => {
+                      if (newRes.ok) {
+                        localStorage.setItem('selectedPlantId', plantId);
+                        newRes.json().then(newData => {
+                          localStorage.setItem('selectedLineId', newData.id); // Save the correct line_id from backend response
+                          window.location.href = `basic_line_layout.html?line_id=${newData.id}`; // Pass the correct line_id as URL parameter
+                        });
+                      } else {
+                        newRes.json().then(newData => {
+                          let msg = newData.detail || 'Error creating line.';
+                          if (newRes.status === 404) {
+                            msg = `Virhe: ${JSON.stringify(newData)}<br>Line creation failed: resource not found.<br>Tarkista että plant_id (${lineData.plant_id}) on olemassa ja backend on käynnissä.`;
+                          }
+                          document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">' + msg + '</div>';
+                        });
+                      }
+                    })
+                    .catch(() => {
+                      document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Error creating line.</div>';
+                    });
+                  } else {
+                    delRes.json().then(delData => {
+                      let msg = delData.detail || 'Error deleting old line.';
+                      if (delRes.status === 404) {
+                        msg = `Virhe: ${JSON.stringify(delData)}<br>Line deletion failed: resource not found.<br>Linjaa ei löytynyt poistettavaksi.`;
+                      }
+                      document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">' + msg + '</div>';
+                    });
+                  }
+                })
+                .catch(() => {
+                  document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Error deleting old line.</div>';
+                });
+              })
+              .catch(() => {
+                document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Error finding line to delete.</div>';
+              });
+          };
+        } else {
+          // Linjaa ei ole, luodaan uusi
+          fetch('http://localhost:8000/lines', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(lineData)
+          })
+          .then(r => {
+            if (r.ok) {
+              localStorage.setItem('selectedPlantId', plantId);
+              r.json().then(data => {
+                localStorage.setItem('selectedLineId', data.id); // Save the correct line_id from backend response
+                window.location.href = `basic_line_layout.html?line_id=${data.id}`; // Pass the correct line_id as URL parameter
+              });
+            } else {
+              r.json().then(data => {
+                let msg = data.detail || 'Error creating line.';
+                if (r.status === 404) {
+                  msg = `Virhe: ${JSON.stringify(data)}<br>Line creation failed: resource not found.<br>Tarkista että plant_id (${lineData.plant_id}) on olemassa ja backend on käynnissä.`;
+                }
+                document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">' + msg + '</div>';
+              });
+            }
+          })
+          .catch(() => {
+            document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Error creating line.</div>';
+          });
+        }
+      })
+      .catch(() => {
+        document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Error checking existing lines.</div>';
+      });
+    });
+  </script>
+</body>
+</html>
