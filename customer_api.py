@@ -5,9 +5,16 @@ def can_delete_customer(customer_id: int, db: Session = Depends(get_db)):
         return {"can_delete": False}
     plants = db.query(Plant).filter(Plant.customer_id == customer_id).count()
     return {"can_delete": plants == 0}
+
+# --- ENDPOINTIT ---
+
 # --- LINJAN POISTO, vain jos ei tank_group, tank eikä station viittauksia ---
 # (Huom! Tämä endpoint pitää olla FastAPI-appin alustuksen JÄLKEEN)
+
+
 # --- ENDPOINTIT ---
+
+
 
 from fastapi import FastAPI, HTTPException, Depends, Body
 from fastapi.middleware.cors import CORSMiddleware
@@ -139,7 +146,7 @@ class Line(Base):
     __tablename__ = "line"
     id = Column(Integer, primary_key=True, index=True)
     plant_id = Column(Integer, nullable=False)
-    line_number = Column(Integer, nullable=False)
+    number = Column(Integer, nullable=False)
     min_x = Column(Integer, nullable=False)
     max_x = Column(Integer, nullable=False)
     min_y = Column(Integer, nullable=False, default=0)
@@ -314,7 +321,7 @@ def update_plant_revision(plant_id: int, data: PlantRevisionUpdate, db: Session 
     return plant
 class LineCreate(BaseModel):
     plant_id: int
-    line_number: int
+    number: int
     min_x: int
     max_x: int
     length: Optional[int] = 1000  # altaan pituus, käytetään max_y:nä
@@ -327,7 +334,7 @@ class LineCreate(BaseModel):
 class LineOut(BaseModel):
     id: int
     plant_id: int
-    line_number: int
+    number: int
     min_x: int
     max_x: int
     min_y: int
@@ -427,14 +434,14 @@ def delete_plant(plant_id: int, db: Session = Depends(get_db)):
 @app.post("/lines", response_model=LineOut)
 def create_line(line: LineCreate, db: Session = Depends(get_db)):
     # Tarkista onko linja jo olemassa
-    existing = db.query(Line).filter(Line.plant_id == line.plant_id, Line.line_number == line.line_number).first()
+    existing = db.query(Line).filter(Line.plant_id == line.plant_id, Line.number == line.number).first()
     if existing:
         raise HTTPException(status_code=400, detail="Line already exists for this plant.")
     min_y = 0
     max_y = line.length if line.length is not None else 1000
     new_line = Line(
         plant_id=line.plant_id,
-        line_number=line.line_number,
+        number=line.number,
         min_x=line.min_x,
         max_x=line.max_x,
         min_y=min_y,

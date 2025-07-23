@@ -57,8 +57,23 @@ async def create_tank(tank: TankCreate, db: Session = Depends(get_db)):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Tank with number '{tank.number}' already exists in this tank group"
             )
-    
-    db_tank = Tank(**tank.model_dump())
+    new_tank = Tank(
+        name=tank.name,
+        number=tank.number,
+        tank_group_id=tank.tank_group_id,
+        plant_id=tank.plant_id,
+        width=tank.width,
+        length=tank.length,
+        depth=tank.depth,
+        x_position=tank.x_position,
+        y_position=tank.y_position,
+        z_position=tank.z_position,
+        space=tank.space
+    )
+    db.add(new_tank)
+    db.commit()
+    db.refresh(new_tank)
+    return new_tank
     db.add(db_tank)
     db.commit()
     db.refresh(db_tank)

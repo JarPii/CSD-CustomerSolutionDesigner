@@ -12,7 +12,7 @@ class Line(Base):
     
     id = Column(Integer, primary_key=True, index=True)
     plant_id = Column(Integer, ForeignKey("plant.id"), nullable=False)
-    line_number = Column(Integer, nullable=False)
+    number = Column(Integer, nullable=False)
     min_x = Column(Integer, nullable=True)
     max_x = Column(Integer, nullable=True)
     min_y = Column(Integer, nullable=True)

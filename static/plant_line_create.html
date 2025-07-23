@@ -104,35 +104,47 @@
       <div class="form-card">
         <!-- Otsikko poistettu, headerissa on otsikko ja ikoni -->
         <form id="lineForm" class="mb-4">
-          <div class="mb-3">
-            <label for="lineCount" class="form-label">Number of lines</label>
-            <input id="lineCount" type="number" class="form-control" value="1" min="1" max="1" readonly>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="lineNumber" class="form-label">Line number</label>
+              <input id="lineNumber" type="number" class="form-control form-control-sm" style="max-width:110px;" value="100" readonly>
+            </div>
+            <div class="col-md-6">
+              <label for="tankCount" class="form-label">Number of tanks</label>
+              <input id="tankCount" type="number" class="form-control form-control-sm" style="max-width:110px;" value="5" min="1">
+            </div>
+            <div class="col-md-6">
+              <label for="tankWidth" class="form-label">Tank width (mm)</label>
+              <input id="tankWidth" type="number" class="form-control form-control-sm" style="max-width:110px;" value="1000" min="1">
+            </div>
+            <div class="col-md-6">
+              <label for="tankLength" class="form-label">Tank length (mm)</label>
+              <input id="tankLength" type="number" class="form-control form-control-sm" style="max-width:110px;" value="2000" min="1">
+            </div>
+            <div class="col-md-6">
+              <label for="tankDepth" class="form-label">Tank depth (mm)</label>
+              <input id="tankDepth" type="number" class="form-control form-control-sm" style="max-width:110px;" value="1500" min="1">
+            </div>
+            <div class="col-md-6">
+              <label for="tankXPosition" class="form-label">Tank X position (mm)</label>
+              <input id="tankXPosition" type="number" class="form-control form-control-sm" style="max-width:110px;" value="0" min="0">
+            </div>
+            <div class="col-md-6">
+              <label for="tankYPosition" class="form-label">Tank Y position (mm)</label>
+              <input id="tankYPosition" type="number" class="form-control form-control-sm" style="max-width:110px;" value="0" min="0">
+            </div>
+            <div class="col-md-6">
+              <label for="tankZPosition" class="form-label">Tank Z position (mm)</label>
+              <input id="tankZPosition" type="number" class="form-control form-control-sm" style="max-width:110px;" value="0" min="0">
+            </div>
+            <div class="col-md-6">
+              <label for="tankGap" class="form-label">Gap between tanks (mm)</label>
+              <input id="tankGap" type="number" class="form-control form-control-sm" style="max-width:110px;" value="200" min="0">
+            </div>
           </div>
-          <div class="mb-3">
-            <label for="lineNumber" class="form-label">Line number</label>
-            <input id="lineNumber" type="number" class="form-control" value="100" readonly>
-          </div>
-          <div class="mb-3">
-            <label for="tankCount" class="form-label">Number of tanks</label>
-            <input id="tankCount" type="number" class="form-control" value="5" min="1">
-          </div>
-          <div class="mb-3">
-            <label for="tankWidth" class="form-label">Tank width (mm)</label>
-            <input id="tankWidth" type="number" class="form-control" value="1000" min="1">
-          </div>
-          <div class="mb-3">
-            <label for="tankLength" class="form-label">Tank length (mm)</label>
-            <input id="tankLength" type="number" class="form-control" value="2000" min="1">
-          </div>
-          <div class="mb-3">
-            <label for="tankDepth" class="form-label">Tank depth (mm)</label>
-            <input id="tankDepth" type="number" class="form-control" value="1500" min="1">
-          </div>
-          <div class="mb-3">
-            <label for="tankGap" class="form-label">Gap between tanks (mm)</label>
-            <input id="tankGap" type="number" class="form-control" value="200" min="0">
-          </div>
+          <div style="height:32px;"></div>
           <button type="submit" class="btn btn-sales"><i class="bi bi-plus"></i> Create line</button>
+          <button type="button" class="btn btn-sales ms-2" id="cancelBtn"><i class="bi bi-x"></i> Cancel</button>
         </form>
         <div id="resultMsg"></div>
       <div id="overwritePrompt" style="display:none;"></div>
@@ -148,18 +160,35 @@
   <script>
     // SALES-teema ja header
     document.addEventListener('DOMContentLoaded', function() {
+      const cancelBtn = document.getElementById('cancelBtn');
+      if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+          window.location.href = 'plant_layout.html';
+        });
+      }
+      // Hierarkinen back-nappi headeriin
+      setTimeout(function() {
+        const headerBackBtn = document.querySelector('.header-back-btn');
+        if (headerBackBtn) {
+          headerBackBtn.onclick = function() {
+            window.location.href = 'plant_layout.html';
+          };
+        }
+      }, 100);
+    });
+    document.addEventListener('DOMContentLoaded', function() {
       createHeader({ 
         theme: 'sales', 
         pageTitle: 'Create line',
         pageIcon: 'bi bi-grid-3x3-gap'
       });
-      // Varmistetaan, että headerin back-nappi käyttää window.history.back()
+      // Hierarkinen back-nappi: vie plant_layout.html-sivulle
       setTimeout(function() {
         const headerBackBtn = document.querySelector('.header-back-btn');
         if (headerBackBtn) {
           headerBackBtn.onclick = function(e) {
             e.preventDefault();
-            window.history.back();
+            window.location.href = 'plant_layout.html';
           };
         }
       }, 100);
@@ -180,22 +209,23 @@
       const lineNumber = parseInt(document.getElementById('lineNumber').value);
       const lineData = {
         plant_id: parseInt(plantId),
-        line_number: lineNumber,
+        number: lineNumber,
         min_x,
         max_x,
+        count: tankCount,
+        width: tankWidth,
         length: parseInt(document.getElementById('tankLength').value),
-        tank_group_count: tankCount,
-        tanks_per_group: 1,
-        tank_width: tankWidth,
-        tank_length: parseInt(document.getElementById('tankLength').value),
-        tank_depth: parseInt(document.getElementById('tankDepth').value),
-        tank_space: tankGap
+        depth: parseInt(document.getElementById('tankDepth').value),
+        gap: tankGap,
+        x_position: parseInt(document.getElementById('tankXPosition').value),
+        y_position: parseInt(document.getElementById('tankYPosition').value),
+        z_position: parseInt(document.getElementById('tankZPosition').value)
       };
       // Tarkista ensin, onko linja jo olemassa
       fetch(`http://localhost:8000/plants/${plantId}/lines`)
         .then(res => res.json())
       .then(lines => {
-        const exists = lines.some(l => l.line_number === lineNumber);
+        const exists = lines.some(l => l.number === lineNumber);
         if (exists) {
           document.getElementById('overwritePrompt').style.display = '';
           document.getElementById('overwritePrompt').innerHTML = `
@@ -217,7 +247,7 @@
             fetch(`http://localhost:8000/plants/${plantId}/lines`)
               .then(res => res.json())
               .then(lines => {
-                const line = lines.find(l => l.line_number === lineNumber);
+                const line = lines.find(l => l.number === lineNumber);
                 if (!line) {
                   document.getElementById('resultMsg').innerHTML = '<div class="alert alert-danger">Line not found</div>';
                   return;
@@ -239,7 +269,7 @@
                         localStorage.setItem('selectedPlantId', plantId);
                         newRes.json().then(newData => {
                           localStorage.setItem('selectedLineId', newData.id); // Save the correct line_id from backend response
-                          window.location.href = `basic_line_layout.html?line_id=${newData.id}`; // Pass the correct line_id as URL parameter
+                          window.location.href = `basic-line-layout.html?line_id=${newData.id}`; // Pass the correct line_id as URL parameter
                         });
                       } else {
                         newRes.json().then(newData => {
@@ -284,7 +314,7 @@
               localStorage.setItem('selectedPlantId', plantId);
               r.json().then(data => {
                 localStorage.setItem('selectedLineId', data.id); // Save the correct line_id from backend response
-                window.location.href = `basic_line_layout.html?line_id=${data.id}`; // Pass the correct line_id as URL parameter
+                window.location.href = `basic-line-layout.html?line_id=${data.id}`; // Pass the correct line_id as URL parameter
               });
             } else {
               r.json().then(data => {

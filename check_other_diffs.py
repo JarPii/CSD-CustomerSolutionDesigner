@@ -11,8 +11,8 @@ def check_other_differences():
     # Current database structure (from our analysis)
     current_db = {
         'line': {
-            'columns': ['id', 'plant_id', 'line_number', 'min_x', 'max_x', 'min_y', 'max_y', 'created_at', 'updated_at'],
-            'constraints': ['FOREIGN KEY plant_id -> plant.id', 'UNIQUE(plant_id, line_number)']
+            'columns': ['id', 'plant_id', 'number', 'min_x', 'max_x', 'min_y', 'max_y', 'created_at', 'updated_at'],
+            'constraints': ['FOREIGN KEY plant_id -> plant.id', 'UNIQUE(plant_id, number)']
         },
         'tank': {
             'columns': ['id', 'name', 'tank_group_id', 'plant_id', 'width', 'length', 'depth', 'created_at', 'updated_at', 'number', 'space'],

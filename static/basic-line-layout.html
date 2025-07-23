@@ -213,57 +213,56 @@
           const response = await fetch(`/plants/${selection.plant.id}/lines`);
           if (response.ok) {
             const lines = await response.json();
-            
-            if (lines && lines.length > 0) {
-              // Add line buttons
-              lines.forEach(line => {
+            if (Array.isArray(lines)) {
+              if (lines.length > 0) {
+                // Add line buttons
+                lines.forEach(line => {
+                  contentHTML += `
+                    <button onclick="selectLine('${line.id}', '${line.number}')" 
+                            style="background: #113a4c; color: white; border: none; border-radius: 6px; 
+                                   padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
+                                   cursor: pointer; transition: all 0.2s ease; margin-left: 5px;"
+                            onmouseover="this.style.background='#000000'" 
+                            onmouseout="this.style.background='#113a4c'">
+                      ${line.number}
+                    </button>
+                  `;
+                });
+              } else {
                 contentHTML += `
-                  <button onclick="selectLine('${line.id}', '${line.line_number}')" 
-                          style="background: #113a4c; color: white; border: none; border-radius: 6px; 
-                                 padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
-                                 cursor: pointer; transition: all 0.2s ease; margin-left: 5px;"
-                          onmouseover="this.style.background='#000000'" 
-                          onmouseout="this.style.background='#113a4c'">
-                    ${line.line_number}
-                  </button>
+                  <span style="color: #6c757d; font-style: italic; font-size: 1.1rem; margin-left: 5px;">
+                    No lines found
+                  </span>
                 `;
-              });
-              
-              // Add "Add new line" button
+              }
+              // Add "Add new line" button (always visible)
               contentHTML += `
                 <button onclick="addNewLine()" 
                         title="Add new line"
-                        style="background: #6c757d; color: white; border: none; border-radius: 6px; 
-                               padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
-                               cursor: pointer; transition: all 0.2s ease; margin-left: 5px;"
-                        onmouseover="this.style.background='#495057'" 
-                        onmouseout="this.style.background='#6c757d'">
+                        style="background: transparent; color: #113a4c; border: 1px solid #113a4c; border-radius: 6px; 
+                               font-weight: 500; padding: 8px 15px; font-size: 1.1rem; margin-left: 10px; 
+                               text-decoration: none; display: inline-block; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#113a4c'; this.style.color='#fff';" 
+                        onmouseout="this.style.background='transparent'; this.style.color='#113a4c';">
                   +
                 </button>
               `;
-            } else {
-              contentHTML += `
-                <span style="color: #6c757d; font-style: italic; font-size: 1.1rem; margin-left: 5px;">
-                  No lines found
-                </span>
-                
-                <!-- Add "Add new line" button when no lines exist -->
-                <button onclick="addNewLine()" 
-                        title="Add new line"
-                        style="background: #113a4c; color: white; border: none; border-radius: 6px; 
-                               padding: 8px 15px; font-size: 1.1rem; font-weight: 600; 
-                               cursor: pointer; transition: all 0.2s ease; margin-left: 10px;"
-                        onmouseover="this.style.background='#000000'" 
-                        onmouseout="this.style.background='#113a4c'">
-                  +
-                </button>
-              `;
-            }
+            } // If lines is not an array, do not show error, just show add button
           } else {
+            // Only show error if fetch fails (response not ok)
             contentHTML += `
               <span style="color: #dc3545; font-size: 1.1rem; margin-left: 5px;">
                 Error loading lines
               </span>
+              <button onclick="addNewLine()" 
+                      title="Add new line"
+                      style="background: transparent; color: #113a4c; border: 1px solid #113a4c; border-radius: 6px; 
+                             font-weight: 500; padding: 8px 15px; font-size: 1.1rem; margin-left: 10px; 
+                             text-decoration: none; display: inline-block; transition: all 0.2s ease;"
+                      onmouseover="this.style.background='#113a4c'; this.style.color='#fff';" 
+                      onmouseout="this.style.background='transparent'; this.style.color='#113a4c';">
+                +
+              </button>
             `;
           }
         } catch (error) {
@@ -272,6 +271,15 @@
             <span style="color: #dc3545; font-size: 1.1rem; margin-left: 5px;">
               Error loading lines
             </span>
+            <button onclick="addNewLine()" 
+                    title="Add new line"
+                    style="background: transparent; color: #113a4c; border: 1px solid #113a4c; border-radius: 6px; 
+                           font-weight: 500; padding: 8px 15px; font-size: 1.1rem; margin-left: 10px; 
+                           text-decoration: none; display: inline-block; transition: all 0.2s ease;"
+                    onmouseover="this.style.background='#113a4c'; this.style.color='#fff';" 
+                    onmouseout="this.style.background='transparent'; this.style.color='#113a4c';">
+              +
+            </button>
           `;
         }
         
@@ -304,7 +312,7 @@
       if (selection) {
         selection.selectedLine = {
           id: lineId,
-          line_number: lineNumber
+          number: lineNumber
         };
         sessionStorage.setItem('customerPlantSelection', JSON.stringify(selection));
       }
@@ -381,7 +389,7 @@
             });
             
             // Draw the layout
-            renderer.drawLayout(tanks, { id: lineId, line_number: lineNumber });
+            renderer.drawLayout(tanks, { id: lineId, number: lineNumber });
             
             console.log(`Layout drawn for line ${lineNumber}: ${tanks.length} tanks`);
           }, 300);
@@ -405,13 +413,11 @@
     // Handle adding a new line
     function addNewLine() {
       const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
-      
       if (selection && selection.plant) {
         // Store plant ID in localStorage for the line creation form
         localStorage.setItem('selectedPlantId', selection.plant.id);
-        
-        // Navigate to the line creation form with theme support
-        alert('Line creation form is not accessible from this page.');
+        // Ohjataan käyttäjä linjan luontilomakkeelle
+        window.location.href = "/static/plant_line_create.html";
       } else {
         alert('Please select a customer and plant first.');
       }

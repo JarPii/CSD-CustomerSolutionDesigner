@@ -63,6 +63,20 @@
   - Tankki voi sisältää useita asemia (`station`).
 - **Kuvaus**:
   - `tank`-taulu määrittelee yksittäiset tankit, jotka ryhmitellään `tank_group`-tauluun.
+  - Tank-taulun kentät:
+    - `tank_group_id` - Viittaus tankkiryhmään (**voi olla tyhjä**)
+    - `plant_id` - Viittaus laitokseen
+    - `name` - Altaan nimi
+    - `number` - Altaan numero
+    - `width` - Leveys (mm)
+    - `length` - Pituus (mm)
+    - `depth` - Syvyys (mm)
+    - `x_position` - X-koordinaatti (vasen alakulma, **oletus 0, ei voi olla tyhjä**)
+    - `y_position` - Y-koordinaatti (**oletus 0, ei voi olla tyhjä**)
+    - `z_position` - Z-koordinaatti (**oletus 0, ei voi olla tyhjä**)
+    - `space` - Altaiden välinen väli (mm)
+    - `created_at` - Luontiaika
+    - `updated_at` - Päivitysaika
 
 ### **5. Station (Asemat)**
 - **Suhde Tank-tauluun**:
@@ -400,6 +414,7 @@ GROUP BY p.revision;
 ---
 
 **Revision-järjestelmän edut:**
+
 - ✅ Estää vahingossa tapahtuvan datan tuhoamisen
 - ✅ Mahdollistaa versioiden vertailun ja historian säilyttämisen  
 - ✅ Noudattaa teollisuuden standardeja (CAD/PLM-järjestelmät)

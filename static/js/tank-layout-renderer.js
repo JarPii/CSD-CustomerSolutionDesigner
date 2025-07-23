@@ -152,13 +152,15 @@ class TankLayoutRenderer {
     // Clear canvas
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
     
-    // Draw components
-    if (options.showGrid) {
-      this.drawGrid(scale);
-    }
-    
+    // Ei gridin piirtoa
     this.drawTanks(tanks, scale, drawOptions.hoveredTankId);
-    
+    // Piirrä linjan mitat kuvan alareunaan
+    this.ctx.fillStyle = '#333';
+    this.ctx.font = '16px Arial';
+    this.ctx.textAlign = 'center';
+    let totalWidth = tanks.reduce((sum, t) => sum + (t.width || 0) + (t.space || 0), 0);
+    let maxLength = Math.max(...tanks.map(t => t.length || 0));
+    this.ctx.fillText(`Line total width: ${totalWidth} mm, max tank length: ${maxLength} mm`, this.canvas.width/2, this.canvas.height - 30);
     // Call layout drawn callback
     if (this.onLayoutDrawn) {
       this.onLayoutDrawn(tanks, line);
@@ -416,7 +418,7 @@ class TankLayoutRenderer {
    */
   drawTankLabels(centerX, centerY, tank, theme, width, length) {
     const scale = this.calculateScale(this.currentTanks);
-    const baseFontSize = Math.min(16, Math.max(10, scale * 12));
+    const baseFontSize = Math.min(48, Math.max(30, scale * 36)); // 3x alkuperäinen
     
     // Draw tank number
     this.ctx.fillStyle = theme.textColor;
@@ -433,14 +435,9 @@ class TankLayoutRenderer {
    * Draw tank details for 3D view
    */
   drawTankDetails3D(x, y, tank, width, length, height, scale, isHovered, theme) {
-    const detailFontSize = Math.min(12, Math.max(8, scale * 8));
+    const detailFontSize = Math.min(36, Math.max(24, scale * 24)); // 3x alkuperäinen
     
-    // Draw dimensions below the tank
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = `${detailFontSize}px Arial`;
-    this.ctx.textAlign = 'center';
-    this.ctx.fillText(`${tank.width || '?'}×${tank.length || '?'}×${tank.height || '?'}mm`, 
-                     x + width/2, y + length/2 + 20);
+    // Ei mittoja tankin sisällä
     
     // Draw Edit button
     const buttonY = y + length/2 + 35;
@@ -479,32 +476,30 @@ class TankLayoutRenderer {
    * Draw tank details and edit button
    */
   drawTankDetails(x, y, tank, width, length, scale, isHovered, theme, detailFontSize) {
-    // Draw dimensions
-    this.ctx.fillStyle = '#666';
-    this.ctx.font = `${detailFontSize}px Arial`;
-    this.ctx.fillText(`${tank.width || '?'}×${tank.length || '?'}mm`, x + width/2, y + length/2 - detailFontSize);
-    
-    // Draw Edit button (scaled based on tank size)
+    // Ei mittoja tankin sisällä
+    // Edit-nappi: pelkkä sininen kynäikoni, valkoinen tausta, sininen reunaviiva, ei tekstiä
     const buttonY = y + length/2 + this.options.padding;
-    const buttonWidth = Math.min(60, Math.max(30, width * 0.6));
-    const buttonHeight = Math.min(25, Math.max(15, length * 0.1));
+    const buttonWidth = 40;
+    const buttonHeight = 40;
     const buttonX = x + width/2 - buttonWidth/2;
-    
     // Button background
-    this.ctx.fillStyle = isHovered ? theme.buttonHover : theme.buttonColor;
+    this.ctx.fillStyle = '#fff';
+    this.ctx.strokeStyle = '#0d6efd';
+    this.ctx.lineWidth = 2;
     this.ctx.fillRect(buttonX, buttonY, buttonWidth, buttonHeight);
-    
-    // Button border
-    this.ctx.strokeStyle = isHovered ? theme.buttonHover : theme.buttonColor;
-    this.ctx.lineWidth = isHovered ? 2 : 1;
     this.ctx.strokeRect(buttonX, buttonY, buttonWidth, buttonHeight);
-    
-    // Button text
-    this.ctx.fillStyle = 'white';
-    const buttonFontSize = Math.min(12, Math.max(8, buttonHeight * 0.6));
-    this.ctx.font = isHovered ? `bold ${buttonFontSize}px Arial` : `${buttonFontSize}px Arial`;
-    this.ctx.fillText('Edit', x + width/2, buttonY + buttonHeight/2 + buttonFontSize/3);
-    
+    // Draw pencil icon (SVG path)
+    this.ctx.save();
+    this.ctx.translate(buttonX + buttonWidth/2 - 10, buttonY + buttonHeight/2 - 10);
+    this.ctx.scale(1.5, 1.5);
+    this.ctx.beginPath();
+    this.ctx.moveTo(2, 10); this.ctx.lineTo(10, 2); this.ctx.lineTo(14, 6); this.ctx.lineTo(6, 14); this.ctx.closePath();
+    this.ctx.moveTo(2, 10); this.ctx.lineTo(6, 14);
+    this.ctx.moveTo(10, 2); this.ctx.lineTo(14, 6);
+    this.ctx.strokeStyle = '#0d6efd';
+    this.ctx.lineWidth = 2;
+    this.ctx.stroke();
+    this.ctx.restore();
     // Store button for click detection
     this.editButtons.push({
       tankId: tank.id,

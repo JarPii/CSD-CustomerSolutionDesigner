@@ -30,7 +30,7 @@ class LineService:
         
         new_line = Line(
             plant_id=line_data.plant_id,
-            line_number=line_data.line_number,
+            number=line_data.number,
             min_x=line_data.min_x,
             max_x=line_data.max_x,
             min_y=min_y,

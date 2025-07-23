@@ -6,11 +6,14 @@ from datetime import datetime
 class TankBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=255, description="Tank name")
     number: Optional[int] = Field(None, gt=0, description="Tank number for ordering/identification within tank group")
-    tank_group_id: int = Field(..., gt=0, description="Tank group ID")
+    tank_group_id: Optional[int] = Field(None, description="Tank group ID (nullable)")
     plant_id: int = Field(..., gt=0, description="Plant ID")
     width: Optional[int] = Field(None, gt=0, description="Tank width")
     length: Optional[int] = Field(None, gt=0, description="Tank length")
     depth: Optional[int] = Field(None, gt=0, description="Tank depth")
+    x_position: Optional[int] = Field(None, description="X coordinate of tank position")
+    y_position: Optional[int] = Field(None, description="Y coordinate of tank position")
+    z_position: Optional[int] = Field(None, description="Z coordinate of tank position")
     space: Optional[int] = Field(None, gt=0, description="Spacing between tanks in millimeters")
 
 class TankCreate(TankBase):
@@ -24,6 +27,9 @@ class TankUpdate(BaseModel):
     width: Optional[int] = Field(None, gt=0, description="Tank width")
     length: Optional[int] = Field(None, gt=0, description="Tank length")
     depth: Optional[int] = Field(None, gt=0, description="Tank depth")
+    x_position: Optional[int] = Field(None, description="X coordinate of tank position")
+    y_position: Optional[int] = Field(None, description="Y coordinate of tank position")
+    z_position: Optional[int] = Field(None, description="Z coordinate of tank position")
     space: Optional[int] = Field(None, gt=0, description="Spacing between tanks in millimeters")
 
 class TankResponse(TankBase):

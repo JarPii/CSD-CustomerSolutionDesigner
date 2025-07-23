@@ -45,8 +45,8 @@ def compare_with_documentation():
                              'is_active_revision', 'revision_status', 'created_by', 'archived_at']
         },
         'line': {
-            'columns': ['id', 'plant_id', 'line_number', 'min_x', 'max_x', 'min_y', 'max_y', 'created_at', 'updated_at'],
-            'missing_from_doc': ['line_number', 'min_x', 'max_x', 'min_y', 'max_y'],
+            'columns': ['id', 'plant_id', 'number', 'min_x', 'max_x', 'min_y', 'max_y', 'created_at', 'updated_at'],
+            'missing_from_doc': ['number', 'min_x', 'max_x', 'min_y', 'max_y'],
             'missing_in_db': ['name']
         },
         'tank': {
@@ -79,9 +79,9 @@ def compare_with_documentation():
     
     print("4. LINE TABLE:")
     print("   📋 Documentation expects: id, plant_id, name, created_at, updated_at")
-    print("   💾 Database has: id, plant_id, line_number, min_x, max_x, min_y, max_y, created_at, updated_at")
+    print("   💾 Database has: id, plant_id, number, min_x, max_x, min_y, max_y, created_at, updated_at")
     print("   ❌ Missing: name")
-    print("   ❓ Extra: line_number, coordinate bounds (min_x, max_x, min_y, max_y)")
+    print("   ❓ Extra: number, coordinate bounds (min_x, max_x, min_y, max_y)")
     print("   🤔 Are these coordinate bounds supposed to be calculated from tanks?\n")
     
     print("5. TANK TABLE:")
