@@ -1,54 +1,53 @@
-# STL Backend FastAPI
+# STL Customer Solution Designer (CSD)
 
-This is the backend for the STL plant management system. It provides a FastAPI server with CRUD endpoints for customers, plants, devices, functions, lines, tank groups, and tanks, using a PostgreSQL database.
+**Päivitetty:** 23. heinäkuuta 2025
 
-## Structure
-- `app/main.py` – Main FastAPI application
-- `app/models/` – SQLAlchemy database models
-- `app/schemas/` – Pydantic schemas for API validation
-- `app/routers/` – FastAPI route handlers
-- `app/services/` – Business logic services
-- `requirements.txt` – Python dependencies
-- `startup.txt` – Azure App Service startup command
-- `.env.local` – Local environment configuration
+## Yleiskuvaus
 
-## Local Development
-1. Configure your database connection in `.env.local`:
-   ```
-   DATABASE_URL=postgresql://username:password@hostname:port/database
-   ```
-2. Install dependencies:
-   ```
-   pip install -r requirements.txt
-   ```
-3. **Important**: Run the server using one of these commands:
-   ```
-   # Preferred method (works reliably):
-   python -m uvicorn customer_api:app --reload --host 127.0.0.1 --port 8000
-   
-   # Alternative (may not work on all systems):
-   py -m uvicorn customer_api:app --reload
-   ```
+STL Customer Solution Designer (CSD) on FastAPI-pohjainen järjestelmä tuotantolaitosten suunnitteluun, hallintaan ja dokumentointiin. Järjestelmä hyödyntää Azure PostgreSQL -tietokantaa ja tarjoaa REST-rajapinnan frontendille. Kaikki dokumentaatio on keskitetty `documentation`-kansioon.
 
-## Customer Data Structure
-Customers have the following fields:
-- `id`: integer, unique identifier
-- `name`: string, customer name
-- `town`: string, town/city (optional)
-- `country`: string, country (optional)
+## Ohjelmointikielet
+- Python (backend)
+- HTML, JavaScript (frontend)
+- SQL (tietokanta ja migraatiot)
 
-## Frontend Usage
-- Access the main page at: `http://127.0.0.1:8000/`
-- Sales page (customer management): `http://127.0.0.1:8000/static/sales.html`
-- **Note**: JavaScript functionality requires a full browser (Edge, Chrome, Firefox). 
-  VS Code's Simple Browser does not support all JavaScript features.
+## Asennettavat paketit
+Kaikki tarvittavat paketit löytyvät `requirements.txt` ja `requirements-dev.txt` tiedostoista. Tärkeimmät:
+- fastapi
+- uvicorn[standard]
+- psycopg2-binary
+- sqlalchemy
+- pandas
+- python-dotenv
+- pydantic-settings
+- gunicorn
+- openai
+- pytest, pytest-asyncio, httpx (kehitykseen)
 
-## Azure Deployment
-- Set the `DATABASE_URL` environment variable in Azure App Service.
-- The app will use this variable for database connection.
-- Use `startup.txt` for the startup command.
+Asenna paketit komennolla:
+```
+pip install -r requirements.txt
+pip install -r requirements-dev.txt  # kehitysympäristöön
+```
 
-## Notes
-- All database credentials must be provided via environment variable (`DATABASE_URL`).
-- Do not use `database.csv` or any file-based credentials in production.
-- All code and dependencies should be inside this directory for deployment.
+## Käynnistys
+Backend käynnistetään komennolla:
+```
+uvicorn app.main:app --reload
+```
+
+## Dokumentation-kansion tiedostojen tarkoitus
+
+- **CSD_SYSTEM_OVERVIEW.md**: Kokonaiskuva järjestelmän toiminnasta, arkkitehtuurista ja tietovirroista
+- **CSD_DATABASE_SCHEMA.md**: Tietokannan taulujen ja relaatiomallin kuvaus
+- **CSD_TECHNICAL_DOCUMENTATION.md**: Tekninen toteutus, API-rakenteet ja integraatiot
+- **CSD_BACKEND_FUNCTIONS.md**: Backendin päätoiminnot, mallit ja endpointit
+- **CSD_PLANT_STRUCTURE.md**: Laitos-, linja-, tankkiryhmä- ja tankkirakenteen logiikka
+- **CSD_AI_CHAT_OVERVIEW.md**: AI-chat-integraation kuvaus ja käyttötapaukset
+- **CSD_ICON_GUIDELINES.md**: Ikonien ja käyttöliittymän visuaaliset ohjeet
+- **CSD_BRAND_GUIDELINES.md**: Brändin visuaaliset ja viestinnälliset ohjeet
+
+Kaikki dokumentit noudattavat yhtenäistä CSD_ alkuista nimeämiskäytäntöä.
+
+## Lisätiedot
+Katso tarkemmat ohjeet ja tekniset yksityiskohdat `documentation`-kansion tiedostoista.
