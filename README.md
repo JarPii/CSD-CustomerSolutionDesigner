@@ -1,5 +1,12 @@
 # STL Customer Solution Designer (CSD)
 
+## Frontend-koodin rakenne ja säännöt
+
+- Kaikki JavaScript-koodi tulee sijoittaa ulkoisiin tiedostoihin kansioon `static/js/`.
+- HTML-tiedostot eivät saa sisältää sisäistä `<script>...</script>`-osiota, vaan viittaavat aina ulkoisiin JS-tiedostoihin `<script src="/static/js/tiedosto.js"></script>`.
+- Tämä koskee kaikkia sivuja (esim. customer-plant-selection.html, sales.html jne.).
+- Tavoitteena on selkeä, ylläpidettävä ja moderni rakenne, jossa logiikka ja rakenne ovat erillään.
+
 **Päivitetty:** 23. heinäkuuta 2025
 
 ## Yleiskuvaus

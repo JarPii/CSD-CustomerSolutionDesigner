@@ -1,3 +1,8 @@
+
+<!-- JS split: utils, customer/plant, revision -->
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/customer-plant-selection.js"></script>
+<script src="/static/js/plant-revision.js"></script>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +22,7 @@
       margin: 0;
       padding: 0;
     }
+
     
     .main-container {
       min-height: 100vh;
@@ -375,6 +381,8 @@
   </style>
 </head>
 <body>
+
+
   <!-- Header will be injected here by createHeader -->
   <div id="header-placeholder"></div>
   <div class="container main-container">
@@ -596,139 +604,9 @@
     </div>
   </div>
 
-  <script>
-    // Global state
-    let selectedCustomer = null;
-    let selectedPlant = null;
-    let currentTheme = 'engineering'; // default
-    let returnUrl = 'engineering.html'; // default
-    let allCustomers = [];
-    let allPlants = [];
-    
-    // API base URL
-
-    
-    // Initialize page
-    document.addEventListener('DOMContentLoaded', async () => {
-
-
-      alert('DOMContentLoaded start: JS käynnistyi!');
-      console.log('DOM loaded - initializing page');
-
-      // Get theme and return URL from query parameters
-      const urlParams = new URLSearchParams(window.location.search);
-      let themeParam = urlParams.get('theme');
-      // Fallback: if referrer is sales page and no theme param, use sales
-      if (!themeParam && document.referrer && document.referrer.includes('sales')) {
-        themeParam = 'sales';
-      }
-      currentTheme = themeParam || 'engineering';
-      returnUrl = urlParams.get('return') || 'engineering.html';
-
-      // Set theme CSS variables before rendering anything
-      const THEMES = {
-        sales: {
-          primary: '#113a4c',
-          primaryHover: '#0d2a36',
-          text: 'white',
-        },
-        engineering: {
-          primary: '#9de2e7',
-          primaryHover: '#7dd5db',
-          text: '#000000',
-        },
-        training: {
-          primary: '#ff7331',
-          primaryHover: '#e65a1c',
-          text: 'white',
-        },
-        simulation: {
-          primary: '#e5dddf',
-          primaryHover: '#d9d0d3',
-          text: '#000000',
-        },
-        default: {
-          primary: '#9de2e7',
-          primaryHover: '#7dd5db',
-          text: '#000000',
-        },
-      };
-      const themeConfig = THEMES[currentTheme] || THEMES.default;
-      const root = document.documentElement;
-      root.style.setProperty('--theme-primary', themeConfig.primary);
-      root.style.setProperty('--theme-primary-hover', themeConfig.primaryHover);
-      root.style.setProperty('--theme-text', themeConfig.text);
-      // Debug: tulosta custom properties arvot
-      ['primary','primary-hover','text'].forEach(k=>{
-        console.log(`Computed --theme-${k}:`, getComputedStyle(document.documentElement).getPropertyValue(`--theme-${k}`));
-      });
-
-      // Create header with theme, inject to placeholder
-      const headerDiv = document.getElementById('header-placeholder');
-      let headerOk = false;
-      if (typeof createHeader === 'function' && headerDiv) {
-        headerDiv.innerHTML = '';
-        try {
-          createHeader({ theme: currentTheme, container: headerDiv });
-          if (headerDiv.innerHTML.trim() !== '') headerOk = true;
-        } catch (e) {
-          headerOk = false;
-        }
-      }
-
-      // Load existing selection if any
-      loadExistingSelection();
-
-      // Listen for beforeunload to handle back navigation
-      window.addEventListener('beforeunload', function() {
-        // If user is changing selection and no new selection was made, clear the storage
-        if (sessionStorage.getItem('customerPlantChanging') === 'true') {
-          if (!selectedCustomer && !selectedPlant) {
-            sessionStorage.removeItem('customerPlantSelection');
-            window.dispatchEvent(new CustomEvent('storage', { detail: { key: 'customerPlantSelection' }, key: 'customerPlantSelection' }));
-          }
-          sessionStorage.removeItem('customerPlantChanging');
-        }
-      });
-
-      // Don't load all customers automatically - wait for search
-      allCustomers = []; // Initialize empty array
-
-      // Set up search with debouncing
-      let searchTimeout;
-      document.getElementById('customerSearch').addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(searchCustomers, 300);
-      });
-
-      // Plus button click handler
-      document.getElementById('addCustomerBtn').addEventListener('click', function() {
-        if (!this.disabled) {
-          showAddCustomerForm();
-        }
-      });
-
-      // Plant plus button click handler
-      document.getElementById('addPlantBtn').addEventListener('click', function() {
-        if (!this.disabled) {
-          showAddPlantForm();
-        }
-      });
-
-      // Plant search with debouncing
-      let plantSearchTimeout;
-      document.getElementById('plantSearch').addEventListener('input', function() {
-        clearTimeout(plantSearchTimeout);
-        plantSearchTimeout = setTimeout(searchPlants, 300);
-      });
-
-      // Form submission handlers
-      document.getElementById('plantForm').addEventListener('submit', handleAddPlant);
-      document.getElementById('plantEditForm').addEventListener('submit', handleEditPlant);
-
-      // Plant cancel buttons will be handled in show functions
-      console.log('Event listeners initialized - plant cancel buttons will be added dynamically');
-    });
+  <!-- JS siirretty tiedoston loppuun ennen </body> -->
+</body>
+<!-- Kaikki JavaScript on nyt ulkoisissa tiedostoissa: utils.js, customer-plant-selection.js, plant-revision.js -->
     
     // ...existing code...
     
@@ -1320,6 +1198,7 @@
     }
     
     // --- Plant Revision Selection UI ---
+
 async function showPlantRevisionSelection(plant) {
   // Remove any previous revision UI
   let old = document.getElementById('plantRevisionSection');
