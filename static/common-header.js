@@ -154,9 +154,14 @@ function createHeader(options = {}) {
             </div>
         </div>
     `;
-    
-    // Insert header at the beginning of body
-    document.body.insertAdjacentHTML('afterbegin', headerHTML);
+
+    // Support injecting header into a specific container if provided
+    if (options.container && options.container instanceof HTMLElement) {
+        options.container.innerHTML = headerHTML;
+    } else {
+        // Insert header at the beginning of body (default behavior)
+        document.body.insertAdjacentHTML('afterbegin', headerHTML);
+    }
     // Back-napin universaali toiminnallisuus
     setTimeout(function() {
         const backBtn = document.getElementById('universal-back-btn');

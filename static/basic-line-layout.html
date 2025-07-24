@@ -168,11 +168,19 @@
 
   <script>
     // Global variables
-    let currentTheme = 'sales'; // Default to sales theme for this page
+    // --- THEME & RETURN PARAMETER HANDLING ---
+    function getQueryParam(name, fallback) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || fallback;
+    }
+    let currentTheme = getQueryParam('theme', 'sales');
+    let returnUrl = getQueryParam('return', 'sales.html');
     
     // Load and display current customer/plant selection
     async function loadSelection() {
-      const selection = JSON.parse(sessionStorage.getItem('customerPlantSelection') || 'null');
+      const raw = sessionStorage.getItem('customerPlantSelection');
+      console.log('[loadSelection] sessionStorage.getItem("customerPlantSelection") =', raw);
+      const selection = JSON.parse(raw || 'null');
       const contentDiv = document.getElementById('selectionContent');
       
       // Ensure the element exists before modifying it
@@ -295,7 +303,7 @@
             <i class="bi bi-exclamation-triangle"></i>
             <h3>No Customer or Plant Selected</h3>
             <p>Please select a customer and plant before accessing the layout design tools.</p>
-            <a href="/static/customer-plant-selection.html?theme=sales&return=basic-line-layout.html" class="btn-sales">
+            <a href="/static/customer-plant-selection.html?theme=${encodeURIComponent(currentTheme)}&return=basic-line-layout.html" class="btn-sales">
               <i class="bi bi-buildings"></i> Select Customer & Plant
             </a>
           </div>
@@ -416,8 +424,8 @@
       if (selection && selection.plant) {
         // Store plant ID in localStorage for the line creation form
         localStorage.setItem('selectedPlantId', selection.plant.id);
-        // Ohjataan käyttäjä linjan luontilomakkeelle
-        window.location.href = "/static/plant_line_create.html";
+        // Ohjataan käyttäjä linjan luontilomakkeelle, välitetään theme ja return
+        window.location.href = `/static/plant_line_create.html?theme=${encodeURIComponent(currentTheme)}&return=basic-line-layout.html`;
       } else {
         alert('Please select a customer and plant first.');
       }
@@ -427,12 +435,56 @@
     document.addEventListener('DOMContentLoaded', async () => {
       console.log('Page loaded, checking sessionStorage...');
       console.log('SessionStorage content on page load:', sessionStorage.getItem('customerPlantSelection'));
-      
+
       // Ensure the common header is created with the current theme
       createHeader({ theme: currentTheme });
-      
+
       // Try to load selection from sessionStorage first
       await loadSelection();
+
+      // Päivitä valinta automaattisesti kun sessionStorage muuttuu (esim. valinnan jälkeen)
+      window.addEventListener('storage', async (event) => {
+        console.log('[storage event]', event);
+        if ((event.key && event.key === 'customerPlantSelection') || (event.detail && event.detail.key === 'customerPlantSelection')) {
+          console.log('[storage event] Detected customerPlantSelection change');
+          await loadSelection();
+        }
+      });
+
+      // Päivitä valinta myös kun customer-plant-selection.html lähettää CustomEventin
+      window.addEventListener('customerPlantSelectionChanged', async () => {
+        console.log('[CustomEvent] customerPlantSelectionChanged received');
+        await loadSelection();
+      });
+
+      // Päivitä valinta myös kun palataan sivulle back-napilla (browsereissa, jotka tukevat pageshow)
+      window.addEventListener('pageshow', async (event) => {
+        console.log('[pageshow event]', event);
+        if (event.persisted) {
+          console.log('[pageshow event] persisted=true, calling loadSelection');
+          await loadSelection();
+        }
+      });
+
+      // Päivitä valinta myös kun sivu aktivoituu (esim. back-napilla)
+      document.addEventListener('visibilitychange', async () => {
+        console.log('[visibilitychange event] state:', document.visibilityState);
+        if (document.visibilityState === 'visible') {
+          console.log('[visibilitychange event] visible, calling loadSelection');
+          await loadSelection();
+        }
+      });
+
+      // Pollaa sessionStoragea ja päivitä näkymä jos valinta muuttuu (varmistaa päivityksen kaikissa tilanteissa)
+      let lastSelectionRaw = sessionStorage.getItem('customerPlantSelection');
+      setInterval(async () => {
+        const currentSelectionRaw = sessionStorage.getItem('customerPlantSelection');
+        if (currentSelectionRaw !== lastSelectionRaw) {
+          console.log('[poll] customerPlantSelection changed:', lastSelectionRaw, '=>', currentSelectionRaw);
+          lastSelectionRaw = currentSelectionRaw;
+          await loadSelection();
+        }
+      }, 500);
     });
   </script>
 </body>

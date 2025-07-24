@@ -263,17 +263,24 @@
       }
     }
     
+    // --- THEME & RETURN PARAMETER HANDLING ---
+    function getQueryParam(name, fallback) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || fallback;
+    }
+    const currentTheme = getQueryParam('theme', 'simulation');
+    const returnUrl = getQueryParam('return', 'index.html');
+
     // Open customer and plant selection
     function openCustomerPlantSelection() {
-      const selectionUrl = `/static/customer-plant-selection.html?theme=simulation&return=simulation.html`;
+      const selectionUrl = `/static/customer-plant-selection.html?theme=${encodeURIComponent(currentTheme)}&return=simulation.html`;
       window.location.href = selectionUrl;
     }
-    
+
     // Initialize page
     document.addEventListener('DOMContentLoaded', () => {
       // Create header with simulation theme
-      createHeader({ theme: 'simulation' });
-      
+      createHeader({ theme: currentTheme });
       updateCustomerPlantCard(); // Update card with selection if exists
     });
   </script>

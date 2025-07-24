@@ -227,7 +227,7 @@
     <div id="noSelectionMessage" class="alert alert-info">
       <h5><i class="bi bi-info-circle"></i> No Customer or Plant Selected</h5>
       <p>Please select a customer and plant first to manage products.</p>
-      <a href="/static/customer-plant-selection.html?theme=sales&return=products.html" class="btn btn-primary">
+      <a id="selectCustomerPlantBtn" href="#" class="btn btn-primary">
         <i class="bi bi-building"></i> Select Customer & Plant
       </a>
     </div>
@@ -345,10 +345,23 @@
     let selectedProduct = null;
     
     // Initialize page
-    window.onload = function() {
-      createHeader({ theme: 'sales' });
-      loadSelectionFromSession();
-    };
+// --- THEME & RETURN PARAMETER HANDLING ---
+function getQueryParam(name, fallback) {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get(name) || fallback;
+}
+const currentTheme = getQueryParam('theme', 'sales');
+const returnUrl = getQueryParam('return', 'index.html');
+
+window.onload = function() {
+  createHeader({ theme: currentTheme });
+  loadSelectionFromSession();
+  // Set up navigation for select customer/plant button
+  const selectBtn = document.getElementById('selectCustomerPlantBtn');
+  if (selectBtn) {
+    selectBtn.href = `/static/customer-plant-selection.html?theme=${encodeURIComponent(currentTheme)}&return=products.html`;
+  }
+};
     
     // Load customer and plant selection from session storage
     function loadSelectionFromSession() {

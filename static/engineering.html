@@ -440,44 +440,52 @@
       }
     }
     
+    // --- THEME & RETURN PARAMETER HANDLING ---
+    function getQueryParam(name, fallback) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(name) || fallback;
+    }
+    const currentTheme = getQueryParam('theme', 'engineering');
+    const returnUrl = getQueryParam('return', 'index.html');
+
     // Open customer and plant selection
     function openCustomerPlantSelection() {
-      // Navigate to customer selection page with engineering theme
-      const selectionUrl = `/static/customer-plant-selection.html?theme=engineering&return=engineering.html`;
+      // Navigate to customer selection page with current theme and return
+      const selectionUrl = `/static/customer-plant-selection.html?theme=${encodeURIComponent(currentTheme)}&return=engineering.html`;
       window.location.href = selectionUrl;
     }
-    
+
     // Open layout design
     function openLayoutDesign() {
-      window.location.href = 'plant_layout.html';
+      window.location.href = `plant_layout.html?theme=${encodeURIComponent(currentTheme)}&return=engineering.html`;
     }
-    
+
     // Open tank devices (placeholder)
     function openTankDevices() {
       // Coming soon functionality
       console.log('Tank Devices - Coming Soon');
     }
-    
+
     // Open devices and functions
     function openDevicesAndFunctions() {
-      window.location.href = 'generic_devices_and_functions.html';
+      window.location.href = `generic_devices_and_functions.html?theme=${encodeURIComponent(currentTheme)}&return=engineering.html`;
     }
-    
+
     // Open treatment programs with engineering theme
     function openTreatmentPrograms() {
       // For demonstration, we'll use dummy customer and plant IDs
       // In a real implementation, these would be selected from UI or context
       const demoCustomerId = 1;
       const demoPlantId = 1;
-      
+
       // Open treatment programs page with engineering theme
-      const programsUrl = `/static/treatment-programs.html?customerId=${demoCustomerId}&plantId=${demoPlantId}&theme=engineering`;
+      const programsUrl = `/static/treatment-programs.html?customerId=${demoCustomerId}&plantId=${demoPlantId}&theme=${encodeURIComponent(currentTheme)}&return=engineering.html`;
       window.open(programsUrl, '_blank');
     }
 
     // Initialize universal header when page loads
     document.addEventListener('DOMContentLoaded', () => {
-      createHeader({ theme: 'engineering' });
+      createHeader({ theme: currentTheme });
       updateCustomerPlantCard(); // Update card with selection if exists
     });
   </script>
